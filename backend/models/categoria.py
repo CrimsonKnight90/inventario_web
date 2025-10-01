@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
-from backend.db.base import Base
+from backend.db.base_class import Base
 
 class Categoria(Base):
     __tablename__ = "categorias"

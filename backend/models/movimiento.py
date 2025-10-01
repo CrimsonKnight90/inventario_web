@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
-from backend.db.base import Base
+from backend.db.base_class import Base
 from datetime import datetime
 
 class Movimiento(Base):
