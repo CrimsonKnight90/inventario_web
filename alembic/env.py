@@ -2,7 +2,9 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 from alembic import context
 
-from backend.db.base_class import Base
+from backend.db.base import Base
+target_metadata = Base.metadata
+
 from backend.config.settings import settings
 
 # Configuración de logging
@@ -15,7 +17,7 @@ target_metadata = Base.metadata
 
 def get_url():
     return (
-        f"postgresql+psycopg://{settings.db_user}:{settings.db_password}"
+        f"postgresql+psycopg2://{settings.db_user}:{settings.db_password}"
         f"@{settings.db_host}:{settings.db_port}/{settings.db_name}"
     )
 

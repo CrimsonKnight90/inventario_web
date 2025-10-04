@@ -1,13 +1,23 @@
 from fastapi import FastAPI
 from backend.db.session import engine
 from backend.db import base  # importa Base para que Alembic detecte los modelos
-from backend.routes import productos, usuarios, categorias, movimientos, empresas
+from backend.routes import productos, usuarios, categorias, movimientos, empresas, auth
 from sqlalchemy import text
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title="Inventario Web 🚀",
     version="0.2",
     description="Sistema de inventario adaptable a cualquier empresa"
+)
+
+# Configuración de CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # o ["*"] durante desarrollo
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Endpoint raíz
@@ -23,6 +33,7 @@ def ping_db():
         return {"db_connection": bool(result)}
 
 # Registrar routers
+app.include_router(auth.router)
 app.include_router(productos.router)
 app.include_router(usuarios.router)
 app.include_router(categorias.router)
