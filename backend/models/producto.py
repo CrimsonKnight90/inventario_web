@@ -18,10 +18,12 @@ class Producto(Base):
     precio = Column(Float, nullable=False)
 
     # 🔹 Nuevos campos
-    stock = Column(Integer, default=0, nullable=False)       # ✅ requerido por frontend y rutas
+    stock = Column(Integer, default=0, nullable=False)  # ✅ requerido por frontend y rutas
     empresa_id = Column(Integer, ForeignKey("empresas.id"))  # ✅ multiempresa
 
-    categoria_id = Column(Integer, ForeignKey("categorias.id"))
+    # 🔹 Ahora categoria_id puede ser nulo para permitir actualizaciones parciales
+    categoria_id = Column(Integer, ForeignKey("categorias.id"), nullable=True)
 
     categoria = relationship("Categoria", back_populates="productos")
     empresa = relationship("Empresa", back_populates="productos")
+

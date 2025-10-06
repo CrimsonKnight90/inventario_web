@@ -1,6 +1,7 @@
 # ============================================================
 # Archivo: backend/models/categoria.py
 # Descripción: Modelo SQLAlchemy para categorías, ligadas a empresa.
+#              Incluye campo de descripción y relación con productos.
 # Autor: CrimsonKnight90
 # ============================================================
 
@@ -13,9 +14,11 @@ class Categoria(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String(100), nullable=False)
+    descripcion = Column(String(255))  # ✅ Nuevo campo para enriquecer categorías
 
-    # 🔹 Nueva relación con empresa
+    # 🔹 Relación con empresa
     empresa_id = Column(Integer, ForeignKey("empresas.id"))
 
+    # 🔹 Relaciones inversas
     productos = relationship("Producto", back_populates="categoria")
     empresa = relationship("Empresa", back_populates="categorias")

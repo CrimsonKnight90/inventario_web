@@ -1,6 +1,6 @@
 // ============================================================
 // Archivo: frontend/src/pages/LoginPage.jsx
-// Descripción: Pantalla de login; obtiene token JWT, lo decodifica y establece sesión (React, react-router-dom, jwt-decode)
+// Descripción: Pantalla de login; obtiene token JWT, lo decodifica y establece sesión
 // Autor: CrimsonKnight90
 // ============================================================
 
@@ -8,6 +8,7 @@ import { useState } from "react"
 import { useAuth } from "../context/AuthContext"
 import { useNavigate } from "react-router-dom"
 import { jwtDecode } from "jwt-decode"
+import { API_URL } from "../config"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -16,14 +17,12 @@ export default function LoginPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
 
-  // const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000"  // ✅ Recomendado: variable de entorno
-
   const handleLogin = async (e) => {
     e.preventDefault()
     setError("")
 
     try {
-      const response = await fetch(/* `${API_URL}` */ "http://localhost:8000" + "/auth/token", {
+      const response = await fetch(`${API_URL}/auth/token`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({
@@ -33,19 +32,15 @@ export default function LoginPage() {
       })
 
       if (!response.ok) {
-        // Mostrar error específico si está disponible
         const msg = response.status === 401 ? "Credenciales inválidas" : `Error ${response.status}`
         throw new Error(msg)
       }
 
       const data = await response.json()
-
-      // Decodificar el JWT para obtener email y rol desde claims
       const decoded = jwtDecode(data.access_token)
-      // decoded.sub → email
-      // decoded.role → rol
 
-      login(data.access_token, { email: decoded.sub, role: decoded.role })
+      // Backend envía: sub = user_id, email = correo, role = rol
+      login(data.access_token, { email: decoded.email, role: decoded.role })
       navigate("/dashboard")
     } catch (err) {
       setError(err.message || "Error de inicio de sesión")
@@ -58,9 +53,7 @@ export default function LoginPage() {
         <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">
           🔐 Iniciar Sesión
         </h1>
-        {error && (
-          <p className="mb-4 text-red-600 text-sm text-center">{error}</p>
-        )}
+        {error && <p className="mb-4 text-red-600 text-sm text-center">{error}</p>}
         <form onSubmit={handleLogin} className="space-y-4">
           <input
             type="email"

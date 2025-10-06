@@ -1,6 +1,7 @@
 import { useAuth } from "../context/AuthContext"
 import { useApiClient } from "../utils/apiClient"
 import { useEffect, useState } from "react"
+import { API_URL } from "../config"
 
 export default function Dashboard() {
   const { user, logout } = useAuth()
@@ -8,8 +9,7 @@ export default function Dashboard() {
   const [productos, setProductos] = useState([])
 
   useEffect(() => {
-    // Ejemplo: obtener productos protegidos
-    request("http://localhost:8000/productos")
+    request(`${API_URL}/productos/`)
       .then((res) => res.json())
       .then(setProductos)
       .catch((err) => console.error(err))
