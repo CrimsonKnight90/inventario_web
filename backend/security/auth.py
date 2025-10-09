@@ -1,9 +1,13 @@
+# ============================================================
+# Archivo: backend/security/auth.py
+# Descripción: Utilidades de autenticación y contraseñas
+# Autor: CrimsonKnight90
+# ============================================================
+
 from datetime import datetime, timedelta
 from typing import Optional
-
 from jose import jwt, JWTError
 from passlib.context import CryptContext
-
 from backend.config.settings import settings
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

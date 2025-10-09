@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from backend.db.session import engine
 from backend.db import base  # importa Base para que Alembic detecte los modelos
-from backend.routes import productos, usuarios, categorias, movimientos, empresas, auth
+from backend.routes import productos, usuarios, categorias, movimientos, empresas, auth, actividades, actividades_cerradas
 from sqlalchemy import text
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -14,7 +14,7 @@ app = FastAPI(
 # Configuración de CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # o ["*"] durante desarrollo
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],  # o ["*"] durante desarrollo
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -39,3 +39,5 @@ app.include_router(usuarios.router)
 app.include_router(categorias.router)
 app.include_router(movimientos.router)
 app.include_router(empresas.router)
+app.include_router(actividades.router)
+app.include_router(actividades_cerradas.router)

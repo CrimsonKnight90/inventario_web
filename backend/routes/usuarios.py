@@ -1,75 +1,101 @@
-from fastapi import APIRouter, Depends, HTTPException
+# ============================================================
+# Archivo: backend/routes/usuarios.py
+# Descripción: Endpoints de gestión de usuarios para el panel admin
+# Autor: CrimsonKnight90
+# ============================================================
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from backend.db.session import get_db
-from backend.models.usuario import Usuario
-from backend.schemas.usuario import UsuarioCreate, UsuarioRead
-from backend.security.deps import get_current_user, require_admin
+from typing import List
 from backend.security.auth import hash_password
+from backend.db.session import get_db
+from backend import models
+from backend.schemas.usuario import UsuarioCreate, UsuarioRead, UsuarioUpdateRole
 
-router = APIRouter(prefix="/usuarios", tags=["Usuarios"])
+router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 
-# 🔹 Crear usuario (solo admin)
-@router.post("/", response_model=UsuarioRead, dependencies=[Depends(require_admin)])
-def crear_usuario(usuario: UsuarioCreate, db: Session = Depends(get_db)):
-    # Validar email duplicado
-    existente = db.query(Usuario).filter(Usuario.email == usuario.email).first()
+# Listar todos los usuarios
+@router.get("/", response_model=List[UsuarioRead])
+def listar_usuarios(db: Session = Depends(get_db)):
+    usuarios = db.query(models.Usuario).all()
+    return [
+        UsuarioRead(
+            id=u.id,
+            nombre=u.nombre,
+            email=u.email,
+            role=u.role,
+            empresa_id=u.empresa_id,
+            empresa_nombre=u.empresa.nombre if u.empresa else None
+        )
+        for u in usuarios
+    ]
+
+# Crear un nuevo usuario
+@router.post("/", response_model=UsuarioRead, status_code=status.HTTP_201_CREATED)
+def crear_usuario(payload: UsuarioCreate, db: Session = Depends(get_db)):
+    existente = db.query(models.Usuario).filter(models.Usuario.email == payload.email).first()
     if existente:
-        raise HTTPException(status_code=400, detail="Ya existe un usuario con ese email")
+        raise HTTPException(status_code=400, detail="El usuario ya existe")
 
-    # Hashear contraseña antes de guardar
-    nuevo = Usuario(
-        nombre=usuario.nombre,
-        email=usuario.email,
-        password=hash_password(usuario.password),
-        role=usuario.role,
-        empresa_id=usuario.empresa_id
+    # Validar empresa
+    empresa = db.get(models.Empresa, payload.empresa_id)
+    if not empresa:
+        raise HTTPException(status_code=400, detail="La empresa especificada no existe")
+
+    # Validar rol
+    if payload.role not in ["empleado", "admin"]:
+        raise HTTPException(status_code=400, detail="Rol inválido")
+
+    nuevo = models.Usuario(
+        nombre=payload.nombre,
+        email=payload.email,
+        password=hash_password(payload.password),  # ✅ se guarda hasheada
+        role=payload.role,
+        empresa_id=empresa.id
     )
     db.add(nuevo)
     db.commit()
     db.refresh(nuevo)
-    return nuevo
 
-# 🔹 Listar usuarios (solo admin)
-@router.get("/", response_model=list[UsuarioRead], dependencies=[Depends(require_admin)])
-def listar_usuarios(db: Session = Depends(get_db)):
-    return db.query(Usuario).all()
+    return UsuarioRead(
+        id=nuevo.id,
+        nombre=nuevo.nombre,
+        email=nuevo.email,
+        role=nuevo.role,
+        empresa_id=nuevo.empresa_id,
+        empresa_nombre=nuevo.empresa.nombre if nuevo.empresa else None
+    )
 
-# 🔹 Ver perfil propio (cualquier usuario autenticado)
-@router.get("/me", response_model=UsuarioRead)
-def leer_mi_perfil(current_user: Usuario = Depends(get_current_user)):
-    return current_user
-
-# 🔹 Actualizar usuario (solo admin)
-@router.put("/{usuario_id}", response_model=UsuarioRead, dependencies=[Depends(require_admin)])
-def actualizar_usuario(usuario_id: int, datos: UsuarioCreate, db: Session = Depends(get_db)):
-    usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
+# Actualizar rol de un usuario
+@router.put("/{usuario_id}/rol", response_model=UsuarioRead)
+def actualizar_rol(usuario_id: int, payload: UsuarioUpdateRole, db: Session = Depends(get_db)):
+    usuario = db.query(models.Usuario).get(usuario_id)
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
-    # Validar email duplicado (si cambia)
-    existente = db.query(Usuario).filter(
-        Usuario.email == datos.email,
-        Usuario.id != usuario_id
-    ).first()
-    if existente:
-        raise HTTPException(status_code=400, detail="Ya existe otro usuario con ese email")
+    if payload.role not in ["empleado", "admin"]:
+        raise HTTPException(status_code=400, detail="Rol inválido")
 
-    usuario.nombre = datos.nombre
-    usuario.email = datos.email
-    usuario.role = datos.role
-    usuario.empresa_id = datos.empresa_id
-    usuario.password = hash_password(datos.password)  # siempre re-hashear
-
+    usuario.role = payload.role
     db.commit()
     db.refresh(usuario)
-    return usuario
 
-# 🔹 Eliminar usuario (solo admin)
-@router.delete("/{usuario_id}", dependencies=[Depends(require_admin)])
+    return UsuarioRead(
+        id=usuario.id,
+        nombre=usuario.nombre,
+        email=usuario.email,
+        role=usuario.role,
+        empresa_id=usuario.empresa_id,
+        empresa_nombre=usuario.empresa.nombre if usuario.empresa else None
+    )
+
+# Eliminar usuario
+@router.delete("/{usuario_id}", status_code=status.HTTP_204_NO_CONTENT)
 def eliminar_usuario(usuario_id: int, db: Session = Depends(get_db)):
-    usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
+    usuario = db.query(models.Usuario).get(usuario_id)
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
     db.delete(usuario)
     db.commit()
-    return {"detail": "Usuario eliminado correctamente"}
+    return None

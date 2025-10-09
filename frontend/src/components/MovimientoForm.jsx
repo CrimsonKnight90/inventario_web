@@ -7,7 +7,6 @@
 
 import { useState } from "react"
 import { useApiClient } from "../utils/apiClient"
-import { API_URL } from "../config"
 
 export default function MovimientoForm({ productoId, onCreated }) {
   const { request } = useApiClient()
@@ -22,7 +21,7 @@ export default function MovimientoForm({ productoId, onCreated }) {
     setLoading(true)
 
     try {
-      const response = await request(`${API_URL}/movimientos/`, {
+      const response = await request("/movimientos/", {
         method: "POST",
         body: JSON.stringify({
           tipo,

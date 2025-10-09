@@ -1,10 +1,18 @@
+# ============================================================
+# Archivo: backend/routes/empresas.py
+# Descripción: Endpoints de gestión de empresas para el panel admin
+# Autor: CrimsonKnight90
+# ============================================================
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from typing import List
 from backend.db.session import get_db
 from backend.models.empresa import Empresa
 from backend.schemas.empresa import EmpresaCreate, EmpresaRead
 from backend.security.deps import get_current_user, require_admin
 from backend.models.usuario import Usuario
+from backend.schemas.usuario import UsuarioRead
 
 router = APIRouter(prefix="/empresas", tags=["Empresas"])
 
@@ -20,12 +28,39 @@ def crear_empresa(empresa: EmpresaCreate, db: Session = Depends(get_db)):
     db.add(nueva)
     db.commit()
     db.refresh(nueva)
-    return nueva
+
+    return EmpresaRead(
+        id=nueva.id,
+        nombre=nueva.nombre,
+        direccion=nueva.direccion,
+        telefono=nueva.telefono,
+        usuarios=[]  # recién creada, no tiene usuarios aún
+    )
 
 # 🔹 Listar empresas (cualquier usuario autenticado)
-@router.get("/", response_model=list[EmpresaRead])
+@router.get("/", response_model=List[EmpresaRead])
 def listar_empresas(db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_user)):
-    return db.query(Empresa).all()
+    empresas = db.query(Empresa).all()
+    return [
+        EmpresaRead(
+            id=e.id,
+            nombre=e.nombre,
+            direccion=e.direccion,
+            telefono=e.telefono,
+            usuarios=[
+                UsuarioRead(
+                    id=u.id,
+                    nombre=u.nombre,
+                    email=u.email,
+                    role=u.role,
+                    empresa_id=u.empresa_id,
+                    empresa_nombre=e.nombre
+                )
+                for u in e.usuarios
+            ]
+        )
+        for e in empresas
+    ]
 
 # 🔹 Actualizar empresa (solo admin)
 @router.put("/{empresa_id}", response_model=EmpresaRead, dependencies=[Depends(require_admin)])
@@ -46,7 +81,24 @@ def actualizar_empresa(empresa_id: int, datos: EmpresaCreate, db: Session = Depe
         setattr(empresa, key, value)
     db.commit()
     db.refresh(empresa)
-    return empresa
+
+    return EmpresaRead(
+        id=empresa.id,
+        nombre=empresa.nombre,
+        direccion=empresa.direccion,
+        telefono=empresa.telefono,
+        usuarios=[
+            UsuarioRead(
+                id=u.id,
+                nombre=u.nombre,
+                email=u.email,
+                role=u.role,
+                empresa_id=u.empresa_id,
+                empresa_nombre=empresa.nombre
+            )
+            for u in empresa.usuarios
+        ]
+    )
 
 # 🔹 Eliminar empresa (solo admin)
 @router.delete("/{empresa_id}", dependencies=[Depends(require_admin)])

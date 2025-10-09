@@ -6,3 +6,6 @@ from backend.models.producto import Producto
 from backend.models.categoria import Categoria
 from backend.models.movimiento import Movimiento
 from backend.models.empresa import Empresa
+from backend.models.actividad import Actividad
+from backend.models.actividad_cerrada import ActividadCerrada
+

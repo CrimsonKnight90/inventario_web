@@ -7,7 +7,6 @@
 
 import { useState } from "react"
 import { useApiClient } from "../utils/apiClient"
-import { API_URL } from "../config"
 
 export default function ProductoForm({ onCreated }) {
   const { request } = useApiClient()
@@ -25,7 +24,7 @@ export default function ProductoForm({ onCreated }) {
     setLoading(true)
 
     try {
-      const response = await request(`${API_URL}/productos/`, {
+      const response = await request("/productos/", {
         method: "POST",
         body: JSON.stringify({
           nombre,

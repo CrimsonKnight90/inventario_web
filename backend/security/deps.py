@@ -1,7 +1,12 @@
+# ============================================================
+# Archivo: backend/security/deps.py
+# Descripción: Dependencias de seguridad para FastAPI
+# Autor: CrimsonKnight90
+# ============================================================
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-
 from backend.db.session import get_db
 from backend.models.usuario import Usuario
 from backend.security.auth import verify_token
@@ -17,12 +22,11 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
             headers={"WWW-Authenticate": "Bearer"},
         )
     user_id = int(payload["sub"])
-    user = db.query(Usuario).get(user_id)
+    user = db.get(Usuario, user_id)  # ✅ forma moderna en SQLAlchemy 2.x
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuario no encontrado")
     return user
 
-# 🔹 Nueva dependencia para restringir a administradores
 def require_admin(current_user: Usuario = Depends(get_current_user)) -> Usuario:
     if current_user.role != "admin":
         raise HTTPException(
@@ -30,4 +34,3 @@ def require_admin(current_user: Usuario = Depends(get_current_user)) -> Usuario:
             detail="Acceso restringido a administradores"
         )
     return current_user
-

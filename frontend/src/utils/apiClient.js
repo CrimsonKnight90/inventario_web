@@ -7,6 +7,8 @@
 
 import { useAuth } from "../context/AuthContext"
 
+const API_BASE = "http://localhost:8000"   // 👈 apunta al backend FastAPI
+
 export function useApiClient() {
   const { logout, authHeader } = useAuth()
 
@@ -17,7 +19,8 @@ export function useApiClient() {
           ? {}
           : { "Content-Type": "application/json" }
 
-      const response = await fetch(url, {
+      // 👇 prepend baseURL siempre
+      const response = await fetch(`${API_BASE}${url}`, {
         ...options,
         headers: {
           ...defaultHeaders,
