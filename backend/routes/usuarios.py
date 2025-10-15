@@ -1,6 +1,6 @@
 # ============================================================
 # Archivo: backend/routes/usuarios.py
-# Descripción: Endpoints de gestión de usuarios para el panel admin
+# Descripción: Endpoints de gestión de usuarios para el panel admin (con i18n)
 # Autor: CrimsonKnight90
 # ============================================================
 
@@ -11,6 +11,7 @@ from backend.security.auth import hash_password
 from backend.db.session import get_db
 from backend import models
 from backend.schemas.usuario import UsuarioCreate, UsuarioRead, UsuarioUpdateRole
+from backend.i18n.messages import get_message
 
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 
@@ -24,34 +25,26 @@ def listar_usuarios(db: Session = Depends(get_db)):
             nombre=u.nombre,
             email=u.email,
             role=u.role,
-            empresa_id=u.empresa_id,
-            empresa_nombre=u.empresa.nombre if u.empresa else None
         )
         for u in usuarios
     ]
 
 # Crear un nuevo usuario
 @router.post("/", response_model=UsuarioRead, status_code=status.HTTP_201_CREATED)
-def crear_usuario(payload: UsuarioCreate, db: Session = Depends(get_db)):
+def crear_usuario(payload: UsuarioCreate, db: Session = Depends(get_db), lang: str = "es"):
     existente = db.query(models.Usuario).filter(models.Usuario.email == payload.email).first()
     if existente:
-        raise HTTPException(status_code=400, detail="El usuario ya existe")
-
-    # Validar empresa
-    empresa = db.get(models.Empresa, payload.empresa_id)
-    if not empresa:
-        raise HTTPException(status_code=400, detail="La empresa especificada no existe")
+        raise HTTPException(status_code=400, detail=get_message("usuario_existente", lang))
 
     # Validar rol
     if payload.role not in ["empleado", "admin"]:
-        raise HTTPException(status_code=400, detail="Rol inválido")
+        raise HTTPException(status_code=400, detail=get_message("invalid_role", lang))
 
     nuevo = models.Usuario(
         nombre=payload.nombre,
         email=payload.email,
         password=hash_password(payload.password),  # ✅ se guarda hasheada
         role=payload.role,
-        empresa_id=empresa.id
     )
     db.add(nuevo)
     db.commit()
@@ -62,19 +55,17 @@ def crear_usuario(payload: UsuarioCreate, db: Session = Depends(get_db)):
         nombre=nuevo.nombre,
         email=nuevo.email,
         role=nuevo.role,
-        empresa_id=nuevo.empresa_id,
-        empresa_nombre=nuevo.empresa.nombre if nuevo.empresa else None
     )
 
 # Actualizar rol de un usuario
 @router.put("/{usuario_id}/rol", response_model=UsuarioRead)
-def actualizar_rol(usuario_id: int, payload: UsuarioUpdateRole, db: Session = Depends(get_db)):
+def actualizar_rol(usuario_id: int, payload: UsuarioUpdateRole, db: Session = Depends(get_db), lang: str = "es"):
     usuario = db.query(models.Usuario).get(usuario_id)
     if not usuario:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+        raise HTTPException(status_code=404, detail=get_message("user_not_found", lang))
 
     if payload.role not in ["empleado", "admin"]:
-        raise HTTPException(status_code=400, detail="Rol inválido")
+        raise HTTPException(status_code=400, detail=get_message("invalid_role", lang))
 
     usuario.role = payload.role
     db.commit()
@@ -85,16 +76,14 @@ def actualizar_rol(usuario_id: int, payload: UsuarioUpdateRole, db: Session = De
         nombre=usuario.nombre,
         email=usuario.email,
         role=usuario.role,
-        empresa_id=usuario.empresa_id,
-        empresa_nombre=usuario.empresa.nombre if usuario.empresa else None
     )
 
 # Eliminar usuario
 @router.delete("/{usuario_id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_usuario(usuario_id: int, db: Session = Depends(get_db)):
+def eliminar_usuario(usuario_id: int, db: Session = Depends(get_db), lang: str = "es"):
     usuario = db.query(models.Usuario).get(usuario_id)
     if not usuario:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+        raise HTTPException(status_code=404, detail=get_message("user_not_found", lang))
 
     db.delete(usuario)
     db.commit()

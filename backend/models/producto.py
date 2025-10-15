@@ -1,7 +1,7 @@
 # ============================================================
 # Archivo: backend/models/producto.py
 # Descripción: Modelo SQLAlchemy para productos, con soporte de stock
-#              y relación con empresa y categoría.
+#              y relación con categoría.
 # Autor: CrimsonKnight90
 # ============================================================
 
@@ -19,11 +19,11 @@ class Producto(Base):
 
     # 🔹 Nuevos campos
     stock = Column(Integer, default=0, nullable=False)  # ✅ requerido por frontend y rutas
-    empresa_id = Column(Integer, ForeignKey("empresas.id"))  # ✅ multiempresa
+
 
     # 🔹 Ahora categoria_id puede ser nulo para permitir actualizaciones parciales
     categoria_id = Column(Integer, ForeignKey("categorias.id"), nullable=True)
 
     categoria = relationship("Categoria", back_populates="productos")
-    empresa = relationship("Empresa", back_populates="productos")
+
 

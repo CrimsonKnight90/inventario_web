@@ -1,6 +1,6 @@
 # ============================================================
 # Archivo: backend/routes/actividades.py
-# Descripción: Endpoints de gestión y listados de actividades
+# Descripción: Endpoints de gestión y listados de actividades (con i18n)
 # Autor: CrimsonKnight90
 # ============================================================
 
@@ -10,6 +10,7 @@ from backend.db.session import get_db
 from backend import models
 from backend.schemas.actividad import ActividadCreate, ActividadRead
 from backend.schemas.actividad_cerrada import ActividadCerradaBase, ActividadCerradaRead
+from backend.i18n.messages import get_message
 
 router = APIRouter(prefix="/actividades", tags=["actividades"])
 
@@ -42,14 +43,21 @@ def listar_actividades_cerradas(db: Session = Depends(get_db)):
 def cerrar_actividad(
     codact: int,
     payload: ActividadCerradaBase,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    lang: str = "es"
 ):
     actividad = db.query(models.Actividad).filter(models.Actividad.codact == codact).first()
     if not actividad:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Actividad no encontrada")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=get_message("actividad_no_encontrada", lang)
+        )
 
     if actividad.actcerrada:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="La actividad ya está cerrada")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=get_message("actividad_ya_cerrada", lang)
+        )
 
     # Marcar como cerrada
     actividad.actcerrada = True

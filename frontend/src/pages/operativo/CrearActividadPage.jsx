@@ -1,9 +1,11 @@
 // frontend/src/pages/operativo/CrearActividadPage.jsx
 import { useState } from "react"
 import { useApiClient } from "../../utils/apiClient"
+import { useTranslation } from "react-i18next"
 
 export default function CrearActividadPage() {
   const { request } = useApiClient()
+  const { t } = useTranslation()
   const [form, setForm] = useState({ nomact: "", fechaini: "", fechafin: "" })
   const [mensaje, setMensaje] = useState("")
 
@@ -18,8 +20,8 @@ export default function CrearActividadPage() {
         method: "POST",
         body: JSON.stringify(form),
       })
-      if (!res.ok) throw new Error("Error al crear actividad")
-      setMensaje("✅ Actividad creada correctamente")
+      if (!res.ok) throw new Error(t("actividades.error_create"))
+      setMensaje(t("actividades.create_success"))
       setForm({ nomact: "", fechaini: "", fechafin: "" })
     } catch (err) {
       setMensaje("❌ " + err.message)
@@ -29,14 +31,14 @@ export default function CrearActividadPage() {
   return (
     <div className="p-6 max-w-lg mx-auto bg-white shadow-card rounded-xl">
       <h1 className="text-2xl font-heading text-primary-dark mb-4">
-        ➕ Crear Actividad
+        ➕ {t("actividades.create_title")}
       </h1>
       {mensaje && <p className="mb-4">{mensaje}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="text"
           name="nomact"
-          placeholder="Nombre de la actividad"
+          placeholder={t("actividades.name_placeholder")}
           value={form.nomact}
           onChange={handleChange}
           className="w-full border rounded-lg px-4 py-2"
@@ -60,7 +62,7 @@ export default function CrearActividadPage() {
           type="submit"
           className="w-full bg-primary text-white py-2 rounded-lg hover:bg-primary-dark"
         >
-          Crear
+          {t("actividades.create_button")}
         </button>
       </form>
     </div>

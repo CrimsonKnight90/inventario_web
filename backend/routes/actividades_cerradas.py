@@ -1,6 +1,6 @@
 # ============================================================
 # Archivo: backend/routers/actividades_cerradas.py
-# Descripción: Rutas FastAPI para actividades cerradas (CRUD).
+# Descripción: Rutas FastAPI para actividades cerradas (CRUD) con i18n
 # Autor: CrimsonKnight90
 # ============================================================
 
@@ -8,12 +8,13 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 
-from backend.db.session import get_db  # Ajusta si tu helper está en otro módulo
+from backend.db.session import get_db
 from backend.models.actividad_cerrada import ActividadCerrada
 from backend.schemas.actividad_cerrada import (
     ActividadCerradaCreate,
     ActividadCerradaRead,
 )
+from backend.i18n.messages import get_message
 
 router = APIRouter(prefix="/actividades-cerradas", tags=["actividades-cerradas"])
 
@@ -24,10 +25,13 @@ def listar_actividades_cerradas(db: Session = Depends(get_db)):
 
 
 @router.get("/{id}", response_model=ActividadCerradaRead)
-def obtener_actividad_cerrada(id: int, db: Session = Depends(get_db)):
+def obtener_actividad_cerrada(id: int, db: Session = Depends(get_db), lang: str = "es"):
     actividad = db.query(ActividadCerrada).get(id)
     if not actividad:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Actividad cerrada no encontrada")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=get_message("actividad_cerrada_no_encontrada", lang)
+        )
     return actividad
 
 
@@ -41,10 +45,13 @@ def crear_actividad_cerrada(payload: ActividadCerradaCreate, db: Session = Depen
 
 
 @router.put("/{id}", response_model=ActividadCerradaRead)
-def actualizar_actividad_cerrada(id: int, payload: ActividadCerradaCreate, db: Session = Depends(get_db)):
+def actualizar_actividad_cerrada(id: int, payload: ActividadCerradaCreate, db: Session = Depends(get_db), lang: str = "es"):
     actividad = db.query(ActividadCerrada).get(id)
     if not actividad:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Actividad cerrada no encontrada")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=get_message("actividad_cerrada_no_encontrada", lang)
+        )
 
     for campo, valor in payload.dict().items():
         setattr(actividad, campo, valor)
@@ -55,10 +62,13 @@ def actualizar_actividad_cerrada(id: int, payload: ActividadCerradaCreate, db: S
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_actividad_cerrada(id: int, db: Session = Depends(get_db)):
+def eliminar_actividad_cerrada(id: int, db: Session = Depends(get_db), lang: str = "es"):
     actividad = db.query(ActividadCerrada).get(id)
     if not actividad:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Actividad cerrada no encontrada")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=get_message("actividad_cerrada_no_encontrada", lang)
+        )
 
     db.delete(actividad)
     db.commit()

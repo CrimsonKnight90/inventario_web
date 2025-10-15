@@ -1,11 +1,10 @@
-# backend/models/actividad_cerrada.py
-from sqlalchemy import Column, Integer, String, DateTime, Text
+from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey
 from backend.db.base_class import Base
-from sqlalchemy import ForeignKey
+
 class ActividadCerrada(Base):
     __tablename__ = "actividades_cerradas"
 
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)  # PK estándar
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     codact = Column(Integer, ForeignKey("actividades.codact"), nullable=False)
     nomact = Column(String(30), nullable=False)
     fechaini = Column(DateTime, nullable=True)

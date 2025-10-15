@@ -4,8 +4,9 @@
 # Autor: CrimsonKnight90
 # ============================================================
 
-from pydantic import BaseModel, EmailStr, conint
+from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional, Literal
+from backend.i18n.messages import get_message
 
 class UsuarioBase(BaseModel):
     nombre: str
@@ -14,21 +15,38 @@ class UsuarioBase(BaseModel):
 class UsuarioCreate(UsuarioBase):
     password: str
     role: Literal["empleado", "admin"] = "empleado"  # ✅ restringido
-    empresa_id: conint(gt=0)  # ✅ no permite negativos ni cero
+
+    # 🔹 Validación con mensajes traducibles
+    @field_validator("role")
+    def validar_role(cls, v):
+        if v not in ("empleado", "admin"):
+            # Mensaje traducible
+            raise ValueError(get_message("invalid_role"))
+        return v
 
 class UsuarioRead(UsuarioBase):
     id: int
     role: str
-    empresa_id: int
-    empresa_nombre: Optional[str] = None  # ✅ ahora opcional con default
+
     class Config:
         from_attributes = True
 
 class UsuarioUpdateRole(BaseModel):
     role: Literal["empleado", "admin"]  # ✅ restringido
 
+    @field_validator("role")
+    def validar_role(cls, v):
+        if v not in ("empleado", "admin"):
+            raise ValueError(get_message("invalid_role"))
+        return v
+
 class UsuarioUpdate(BaseModel):
     nombre: Optional[str] = None
     email: Optional[EmailStr] = None
     role: Optional[Literal["empleado", "admin"]] = None
-    empresa_id: Optional[conint(gt=0)] = None
+
+    @field_validator("role")
+    def validar_role(cls, v):
+        if v is not None and v not in ("empleado", "admin"):
+            raise ValueError(get_message("invalid_role"))
+        return v

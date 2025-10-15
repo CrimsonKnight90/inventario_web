@@ -1,3 +1,9 @@
+# ============================================================
+# Archivo: backend/config.py
+# Descripción: Configuración central de la aplicación (Settings)
+# Autor: CrimsonKnight90
+# ============================================================
+
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):

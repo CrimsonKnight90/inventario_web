@@ -4,7 +4,7 @@
 // Autor: CrimsonKnight90
 // ============================================================
 
-import { Routes, Route, Navigate } from "react-router-dom"
+import {Routes, Route, Navigate} from "react-router-dom"
 import LoginPage from "./pages/LoginPage"
 import Dashboard from "./pages/Dashboard"
 import PrivateRoute from "./components/PrivateRoute"
@@ -21,104 +21,144 @@ import ActividadesPage from "./pages/listados/ActividadesPage"
 import ActividadesCreadasPage from "./pages/listados/ActividadesCreadasPage"
 import ActividadesCerradasPage from "./pages/listados/ActividadesCerradasPage"
 
+// 🔹 Páginas de Parámetros
+import UMPage from "./pages/parametros/UMPage"
+import MonedasPage from "./pages/parametros/MonedasPage"
+import TiposDocumentosPage from "./pages/parametros/TiposDocumentosPage"
+
+// (más adelante puedes agregar MonedasPage, TiposDocumentosPage, etc.)
+
 function App() {
-  return (
-    <Routes>
-      {/* 🔹 Público */}
-      <Route path="/" element={<Navigate to="/login" />} />
-      <Route path="/login" element={<LoginPage />} />
+    return (
+        <Routes>
+            {/* 🔹 Público */}
+            <Route path="/" element={<Navigate to="/login"/>}/>
+            <Route path="/login" element={<LoginPage/>}/>
 
-      {/* 🔹 Dashboard */}
-      <Route
-        path="/dashboard"
-        element={
-          <PrivateRoute>
-            <Layout>
-              <Dashboard />
-            </Layout>
-          </PrivateRoute>
-        }
-      />
+            {/* 🔹 Admin */}
+            <Route
+                path="/admin"
+                element={
+                    <PrivateRoute roles={["admin"]}>
+                        <Layout>
+                            <AdminPage/>
+                        </Layout>
+                    </PrivateRoute>
+                }
+            />
 
-      {/* 🔹 Productos */}
-      <Route
-        path="/productos"
-        element={
-          <PrivateRoute>
-            <Layout>
-              <ProductosPage />
-            </Layout>
-          </PrivateRoute>
-        }
-      />
+            {/* 🔹 Dashboard */}
+            <Route
+                path="/dashboard"
+                element={
+                    <PrivateRoute>
+                        <Layout>
+                            <Dashboard/>
+                        </Layout>
+                    </PrivateRoute>
+                }
+            />
 
-      {/* 🔹 Operativo */}
-      <Route
-        path="/operativo/actividades/crear"
-        element={
-          <PrivateRoute>
-            <Layout>
-              <CrearActividadPage />
-            </Layout>
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/operativo/actividades/cerrar"
-        element={
-          <PrivateRoute>
-            <Layout>
-              <CerrarActividadPage />
-            </Layout>
-          </PrivateRoute>
-        }
-      />
+            {/* 🔹 Productos */}
+            <Route
+                path="/productos"
+                element={
+                    <PrivateRoute>
+                        <Layout>
+                            <ProductosPage/>
+                        </Layout>
+                    </PrivateRoute>
+                }
+            />
 
-      {/* 🔹 Listados */}
-      <Route
-        path="/listados/actividades"
-        element={
-          <PrivateRoute>
-            <Layout>
-              <ActividadesPage />
-            </Layout>
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/listados/actividades/creadas"
-        element={
-          <PrivateRoute>
-            <Layout>
-              <ActividadesCreadasPage />
-            </Layout>
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/listados/actividades/cerradas"
-        element={
-          <PrivateRoute>
-            <Layout>
-              <ActividadesCerradasPage />
-            </Layout>
-          </PrivateRoute>
-        }
-      />
+            {/* 🔹 Operativo */}
+            <Route
+                path="/operativo/actividades/crear"
+                element={
+                    <PrivateRoute>
+                        <Layout>
+                            <CrearActividadPage/>
+                        </Layout>
+                    </PrivateRoute>
+                }
+            />
+            <Route
+                path="/operativo/actividades/cerrar"
+                element={
+                    <PrivateRoute>
+                        <Layout>
+                            <CerrarActividadPage/>
+                        </Layout>
+                    </PrivateRoute>
+                }
+            />
 
-      {/* 🔹 Admin */}
-      <Route
-        path="/admin"
-        element={
-          <PrivateRoute roles={["admin"]}>
-            <Layout>
-              <AdminPage />
-            </Layout>
-          </PrivateRoute>
-        }
-      />
-    </Routes>
-  )
+            {/* 🔹 Listados */}
+            <Route
+                path="/listados/actividades"
+                element={
+                    <PrivateRoute>
+                        <Layout>
+                            <ActividadesPage/>
+                        </Layout>
+                    </PrivateRoute>
+                }
+            />
+            <Route
+                path="/listados/actividades/creadas"
+                element={
+                    <PrivateRoute>
+                        <Layout>
+                            <ActividadesCreadasPage/>
+                        </Layout>
+                    </PrivateRoute>
+                }
+            />
+            <Route
+                path="/listados/actividades/cerradas"
+                element={
+                    <PrivateRoute>
+                        <Layout>
+                            <ActividadesCerradasPage/>
+                        </Layout>
+                    </PrivateRoute>
+                }
+            />
+
+            {/* 🔹 Parámetros (solo admin) */}
+            <Route
+                path="/parametros/um"
+                element={
+                    <PrivateRoute roles={["admin"]}>
+                        <Layout>
+                            <UMPage/>
+                        </Layout>
+                    </PrivateRoute>
+                }
+            />
+            <Route
+                path="/parametros/monedas"
+                element={
+                    <PrivateRoute roles={["admin"]}>
+                        <Layout>
+                            <MonedasPage/>
+                        </Layout>
+                    </PrivateRoute>
+                }
+            />
+            <Route
+                path="/parametros/tipos-documentos"
+                element={
+                    <PrivateRoute roles={["admin"]}>
+                        <Layout>
+                            <TiposDocumentosPage/>
+                        </Layout>
+                    </PrivateRoute>
+                }
+            />
+        </Routes>
+    )
 }
 
 export default App
+

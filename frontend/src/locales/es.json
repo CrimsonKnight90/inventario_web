@@ -1,0 +1,161 @@
+{
+  "app": {
+    "title": "Inventario"
+  },
+  "login": {
+  "title": "Iniciar sesión",
+  "email": "Correo electrónico",
+  "password": "Contraseña",
+  "button": "Entrar",
+  "error": "Credenciales inválidas"
+},
+  "nav": {
+    "dashboard": "Dashboard",
+    "products": "Productos",
+    "operativo": "Operativo",
+    "create_activity": "Crear Actividad",
+    "close_activity": "Cerrar Actividad",
+    "listados": "Listados",
+    "all_activities": "Todas las Actividades",
+    "created_activities": "Actividades Creadas",
+    "closed_activities": "Actividades Cerradas",
+    "admin": "Admin",
+    "parameters": "Parámetros",
+    "units": "Unidades de Medida",
+    "currencies": "Monedas",
+    "doc_types": "Tipos de Documento",
+    "logout": "Cerrar sesión"
+  },
+  "catalogo": {
+    "load_error": "❌ Error al cargar {{endpoint}}",
+    "create_error": "Error al crear en {{endpoint}}",
+    "create_success": "✅ Creado correctamente",
+    "server_error": "Error de conexión con el servidor",
+    "confirm_deactivate": "¿Seguro que deseas desactivar \"{{id}}\"?",
+    "deactivate_error": "Error al desactivar",
+    "deactivate_success": "✅ \"{{id}}\" desactivado",
+    "activate_error": "Error al activar",
+    "activate_success": "🔄 \"{{id}}\" activado",
+    "estado": "Estado",
+    "acciones": "Acciones",
+    "no_registros": "No hay registros",
+    "activo": "Activo",
+    "inactivo": "Inactivo",
+    "desactivar": "Desactivar",
+    "activar": "Activar"
+  },
+  "producto": {
+    "create_title": "Crear Producto",
+    "name": "Nombre",
+    "description": "Descripción",
+    "price": "Precio",
+    "stock": "Stock inicial",
+    "category_id": "ID de Categoría",
+    "create_button": "Crear Producto",
+    "creating": "Creando...",
+    "error_create": "Error al crear producto (código {{status}})"
+  },
+  "movimiento": {
+    "entrada": "Entrada",
+    "salida": "Salida",
+    "cantidad": "Cantidad",
+    "submit": "Registrar",
+    "error_create": "Error al registrar movimiento (código {{status}})"
+  },
+  "productos": {
+    "title": "Lista de Productos",
+    "load_error": "No se pudieron cargar los productos",
+    "empty": "No hay productos disponibles.",
+    "stock": "Stock"
+  },
+  "dashboard": {
+    "welcome": "Bienvenido al Dashboard",
+    "session_as": "Sesión iniciada como",
+    "logout": "Cerrar sesión",
+    "products": "Productos"
+  },
+  "um": {
+    "title": "Unidades de Medida",
+    "key_placeholder": "Clave (ej. KG)",
+    "factor_placeholder": "Factor",
+    "create_button": "Crear",
+    "factor": "Factor"
+  },
+  "tipos_doc": {
+    "title": "Tipos de Documento",
+    "key_placeholder": "Clave (ej. VDC)",
+    "name_placeholder": "Nombre",
+    "factor_in": "1 (Entrada)",
+    "factor_out": "-1 (Salida)",
+    "create_button": "Crear",
+    "key": "Clave",
+    "name": "Nombre",
+    "factor": "Factor"
+  },
+  "monedas": {
+    "title": "Monedas",
+    "name_placeholder": "Nombre (ej. USD)",
+    "create_button": "Crear",
+    "name": "Nombre"
+  },
+  "actividades": {
+    "create_title": "Crear Actividad",
+    "create_button": "Crear",
+    "name_placeholder": "Nombre de la actividad",
+    "error_create": "Error al crear actividad",
+    "create_success": "✅ Actividad creada correctamente",
+    "close_title": "Cerrar Actividades",
+    "close_button": "Cerrar",
+    "error_close": "Error al cerrar actividad",
+    "close_success": "✅ Actividad cerrada correctamente",
+    "no_open": "No hay actividades abiertas.",
+    "load_error": "Error al cargar actividades",
+    "list_title": "Todas las Actividades",
+    "loading": "Cargando actividades...",
+    "no_records": "No hay actividades registradas",
+    "name": "Nombre",
+    "start_date": "Fecha Inicio",
+    "end_date": "Fecha Fin",
+    "status": "Estado",
+    "open": "✅ Abierta",
+    "closed": "🔒 Cerrada",
+    "created_title": "Actividades Creadas",
+    "closed_title": "Actividades Cerradas",
+    "loading_created": "Cargando actividades creadas...",
+    "loading_closed": "Cargando actividades cerradas...",
+    "error_load_created": "Error al cargar actividades creadas",
+    "error_load_closed": "Error al cargar actividades cerradas",
+    "no_closed": "No hay actividades cerradas"
+  },
+  "admin": {
+    "title": "Panel de Administración",
+    "error_load": "Error al cargar datos administrativos",
+    "invalid_email": "El email no tiene un formato válido",
+    "invalid_password": "La contraseña debe tener mínimo 8 caracteres, incluir mayúscula, minúscula, número y símbolo",
+    "no_company": "Debe seleccionar una empresa",
+    "error_create_user": "Error al crear usuario",
+    "user_created": "✅ Usuario creado correctamente",
+    "error_change_role": "Error al cambiar rol",
+    "role_updated": "✅ Rol actualizado",
+    "confirm_delete": "¿Seguro que deseas eliminar este usuario?",
+    "error_delete_user": "Error al eliminar usuario",
+    "user_deleted": "✅ Usuario eliminado",
+    "stats": {
+      "products": "Productos",
+      "activities": "Actividades",
+      "closed": "Cerradas",
+      "users": "Usuarios"
+    },
+    "create_user": "Crear Usuario",
+    "name": "Nombre",
+    "password": "Contraseña",
+    "role_employee": "Empleado",
+    "role_admin": "Admin",
+    "create_user_button": "Crear Usuario",
+    "user_management": "Gestión de Usuarios",
+    "role": "Rol",
+    "actions": "Acciones",
+    "change_role_to": "Cambiar a {{role}}",
+    "delete": "Eliminar"
+  }
+}

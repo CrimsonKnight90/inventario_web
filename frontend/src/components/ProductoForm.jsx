@@ -1,15 +1,17 @@
 // ============================================================
 // Archivo: frontend/src/components/ProductoForm.jsx
-// Descripción: Formulario controlado para crear productos.
+// Descripción: Formulario controlado para crear productos (con i18n).
 //              Usa useApiClient y API_URL para enviar POST al backend.
 // Autor: CrimsonKnight90
 // ============================================================
 
 import { useState } from "react"
 import { useApiClient } from "../utils/apiClient"
+import { useTranslation } from "react-i18next"
 
 export default function ProductoForm({ onCreated }) {
   const { request } = useApiClient()
+  const { t } = useTranslation()
   const [nombre, setNombre] = useState("")
   const [descripcion, setDescripcion] = useState("")
   const [precio, setPrecio] = useState("")
@@ -37,7 +39,7 @@ export default function ProductoForm({ onCreated }) {
 
       if (!response.ok) {
         const msg = await response.text()
-        throw new Error(msg || `Error ${response.status}`)
+        throw new Error(msg || t("producto.error_create", { status: response.status }))
       }
 
       const data = await response.json()
@@ -56,13 +58,13 @@ export default function ProductoForm({ onCreated }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 bg-gray-100 p-4 rounded shadow">
-      <h2 className="text-lg font-bold">➕ Crear Producto</h2>
+      <h2 className="text-lg font-bold">➕ {t("producto.create_title")}</h2>
 
       {error && <p className="text-red-600">{error}</p>}
 
       <input
         type="text"
-        placeholder="Nombre"
+        placeholder={t("producto.name")}
         value={nombre}
         onChange={(e) => setNombre(e.target.value)}
         required
@@ -71,7 +73,7 @@ export default function ProductoForm({ onCreated }) {
 
       <input
         type="text"
-        placeholder="Descripción"
+        placeholder={t("producto.description")}
         value={descripcion}
         onChange={(e) => setDescripcion(e.target.value)}
         className="w-full px-3 py-2 border rounded"
@@ -79,7 +81,7 @@ export default function ProductoForm({ onCreated }) {
 
       <input
         type="number"
-        placeholder="Precio"
+        placeholder={t("producto.price")}
         value={precio}
         onChange={(e) => setPrecio(e.target.value)}
         required
@@ -88,7 +90,7 @@ export default function ProductoForm({ onCreated }) {
 
       <input
         type="number"
-        placeholder="Stock inicial"
+        placeholder={t("producto.stock")}
         value={stock}
         onChange={(e) => setStock(e.target.value)}
         className="w-full px-3 py-2 border rounded"
@@ -96,7 +98,7 @@ export default function ProductoForm({ onCreated }) {
 
       <input
         type="number"
-        placeholder="ID de Categoría"
+        placeholder={t("producto.category_id")}
         value={categoriaId}
         onChange={(e) => setCategoriaId(e.target.value)}
         className="w-full px-3 py-2 border rounded"
@@ -107,7 +109,7 @@ export default function ProductoForm({ onCreated }) {
         disabled={loading}
         className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
       >
-        {loading ? "Creando..." : "Crear Producto"}
+        {loading ? t("producto.creating") : t("producto.create_button")}
       </button>
     </form>
   )

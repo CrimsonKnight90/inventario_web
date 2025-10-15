@@ -1,15 +1,16 @@
 // ============================================================
 // Archivo: frontend/src/components/MovimientoForm.jsx
-// Descripción: Formulario para registrar movimientos de stock
-//              (entrada/salida) asociados a un producto.
+// Descripción: Formulario para registrar movimientos de stock (i18n)
 // Autor: CrimsonKnight90
 // ============================================================
 
 import { useState } from "react"
 import { useApiClient } from "../utils/apiClient"
+import { useTranslation } from "react-i18next"
 
 export default function MovimientoForm({ productoId, onCreated }) {
   const { request } = useApiClient()
+  const { t } = useTranslation()
   const [tipo, setTipo] = useState("entrada")
   const [cantidad, setCantidad] = useState("")
   const [error, setError] = useState("")
@@ -32,7 +33,7 @@ export default function MovimientoForm({ productoId, onCreated }) {
 
       if (!response.ok) {
         const msg = await response.text()
-        throw new Error(msg || `Error ${response.status}`)
+        throw new Error(msg || t("movimiento.error_create", { status: response.status }))
       }
 
       const data = await response.json()
@@ -52,13 +53,13 @@ export default function MovimientoForm({ productoId, onCreated }) {
         onChange={(e) => setTipo(e.target.value)}
         className="border rounded px-2 py-1"
       >
-        <option value="entrada">Entrada</option>
-        <option value="salida">Salida</option>
+        <option value="entrada">{t("movimiento.entrada")}</option>
+        <option value="salida">{t("movimiento.salida")}</option>
       </select>
 
       <input
         type="number"
-        placeholder="Cantidad"
+        placeholder={t("movimiento.cantidad")}
         value={cantidad}
         onChange={(e) => setCantidad(e.target.value)}
         required
@@ -70,7 +71,7 @@ export default function MovimientoForm({ productoId, onCreated }) {
         disabled={loading}
         className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition"
       >
-        {loading ? "..." : "Registrar"}
+        {loading ? "..." : t("movimiento.submit")}
       </button>
 
       {error && <span className="text-red-600 text-sm ml-2">{error}</span>}

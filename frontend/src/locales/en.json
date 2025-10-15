@@ -1,0 +1,161 @@
+{
+  "app": {
+    "title": "Inventory"
+  },
+  "login": {
+    "title": "Login",
+    "email": "Email",
+    "password": "Password",
+    "button": "Sign in",
+    "error": "Invalid credentials"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "operativo": "Operations",
+    "create_activity": "Create Activity",
+    "close_activity": "Close Activity",
+    "listados": "Listings",
+    "all_activities": "All Activities",
+    "created_activities": "Created Activities",
+    "closed_activities": "Closed Activities",
+    "admin": "Admin",
+    "parameters": "Parameters",
+    "units": "Units of Measure",
+    "currencies": "Currencies",
+    "doc_types": "Document Types",
+    "logout": "Log out"
+  },
+  "catalogo": {
+    "load_error": "❌ Error loading {{endpoint}}",
+    "create_error": "Error creating in {{endpoint}}",
+    "create_success": "✅ Successfully created",
+    "server_error": "Server connection error",
+    "confirm_deactivate": "Are you sure you want to deactivate \"{{id}}\"?",
+    "deactivate_error": "Error deactivating",
+    "deactivate_success": "✅ \"{{id}}\" deactivated",
+    "activate_error": "Error activating",
+    "activate_success": "🔄 \"{{id}}\" activated",
+    "estado": "Status",
+    "acciones": "Actions",
+    "no_registros": "No records found",
+    "activo": "Active",
+    "inactivo": "Inactive",
+    "desactivar": "Deactivate",
+    "activar": "Activate"
+  },
+  "producto": {
+    "create_title": "Create Product",
+    "name": "Name",
+    "description": "Description",
+    "price": "Price",
+    "stock": "Initial Stock",
+    "category_id": "Category ID",
+    "create_button": "Create Product",
+    "creating": "Creating...",
+    "error_create": "Error creating product (code {{status}})"
+  },
+  "movimiento": {
+    "entrada": "Entry",
+    "salida": "Exit",
+    "cantidad": "Quantity",
+    "submit": "Register",
+    "error_create": "Error registering movement (code {{status}})"
+  },
+  "productos": {
+    "title": "Product List",
+    "load_error": "Failed to load products",
+    "empty": "No products available.",
+    "stock": "Stock"
+  },
+  "dashboard": {
+    "welcome": "Welcome to the Dashboard",
+    "session_as": "Logged in as",
+    "logout": "Log out",
+    "products": "Products"
+  },
+  "um": {
+    "title": "Units of Measure",
+    "key_placeholder": "Key (e.g. KG)",
+    "factor_placeholder": "Factor",
+    "create_button": "Create",
+    "factor": "Factor"
+  },
+  "tipos_doc": {
+    "title": "Document Types",
+    "key_placeholder": "Key (e.g. VDC)",
+    "name_placeholder": "Name",
+    "factor_in": "1 (Entry)",
+    "factor_out": "-1 (Exit)",
+    "create_button": "Create",
+    "key": "Key",
+    "name": "Name",
+    "factor": "Factor"
+  },
+  "monedas": {
+    "title": "Currencies",
+    "name_placeholder": "Name (e.g. USD)",
+    "create_button": "Create",
+    "name": "Name"
+  },
+  "actividades": {
+    "create_title": "Create Activity",
+    "create_button": "Create",
+    "name_placeholder": "Activity name",
+    "error_create": "Error creating activity",
+    "create_success": "✅ Activity created successfully",
+    "close_title": "Close Activities",
+    "close_button": "Close",
+    "error_close": "Error closing activity",
+    "close_success": "✅ Activity closed successfully",
+    "no_open": "No open activities.",
+    "load_error": "Error loading activities",
+    "list_title": "All Activities",
+    "loading": "Loading activities...",
+    "no_records": "No activities registered",
+    "name": "Name",
+    "start_date": "Start Date",
+    "end_date": "End Date",
+    "status": "Status",
+    "open": "✅ Open",
+    "closed": "🔒 Closed",
+    "created_title": "Created Activities",
+    "closed_title": "Closed Activities",
+    "loading_created": "Loading created activities...",
+    "loading_closed": "Loading closed activities...",
+    "error_load_created": "Error loading created activities",
+    "error_load_closed": "Error loading closed activities",
+    "no_closed": "No closed activities"
+  },
+  "admin": {
+    "title": "Administration Panel",
+    "error_load": "Error loading administrative data",
+    "invalid_email": "The email format is invalid",
+    "invalid_password": "Password must be at least 8 characters, include uppercase, lowercase, number and symbol",
+    "no_company": "You must select a company",
+    "error_create_user": "Error creating user",
+    "user_created": "✅ User created successfully",
+    "error_change_role": "Error changing role",
+    "role_updated": "✅ Role updated",
+    "confirm_delete": "Are you sure you want to delete this user?",
+    "error_delete_user": "Error deleting user",
+    "user_deleted": "✅ User deleted",
+    "stats": {
+      "products": "Products",
+      "activities": "Activities",
+      "closed": "Closed",
+      "users": "Users"
+    },
+    "create_user": "Create User",
+    "name": "Name",
+    "password": "Password",
+    "role_employee": "Employee",
+    "role_admin": "Admin",
+    "create_user_button": "Create User",
+    "user_management": "User Management",
+    "role": "Role",
+    "actions": "Actions",
+    "change_role_to": "Change to {{role}}",
+    "delete": "Delete"
+  }
+}

@@ -28,7 +28,6 @@ class UserProfile(BaseModel):
     nombre: str
     email: EmailStr
     role: str
-    empresa_id: int
 
     class Config:
         from_attributes = True

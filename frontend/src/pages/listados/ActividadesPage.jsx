@@ -6,9 +6,11 @@
 
 import { useEffect, useState } from "react"
 import { useApiClient } from "../../utils/apiClient"
+import { useTranslation } from "react-i18next"
 
 export default function ActividadesPage() {
   const { request } = useApiClient()
+  const { t } = useTranslation()
   const [actividades, setActividades] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -20,7 +22,7 @@ export default function ActividadesPage() {
         const data = await res.json()
         setActividades(data)
       } catch (err) {
-        setError("Error al cargar actividades")
+        setError(t("actividades.load_error"))
       } finally {
         setLoading(false)
       }
@@ -28,27 +30,27 @@ export default function ActividadesPage() {
     fetchActividades()
   }, [])
 
-  if (loading) return <p className="p-6">⏳ Cargando actividades...</p>
+  if (loading) return <p className="p-6">⏳ {t("actividades.loading")}</p>
   if (error) return <p className="p-6 text-red-500">{error}</p>
 
   return (
     <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">📋 Todas las Actividades</h1>
+      <h1 className="text-xl font-bold mb-4">📋 {t("actividades.list_title")}</h1>
       <table className="min-w-full bg-white border border-gray-200 rounded shadow">
         <thead className="bg-gray-100">
           <tr>
             <th className="px-4 py-2 border">ID</th>
-            <th className="px-4 py-2 border">Nombre</th>
-            <th className="px-4 py-2 border">Fecha Inicio</th>
-            <th className="px-4 py-2 border">Fecha Fin</th>
-            <th className="px-4 py-2 border">Estado</th>
+            <th className="px-4 py-2 border">{t("actividades.name")}</th>
+            <th className="px-4 py-2 border">{t("actividades.start_date")}</th>
+            <th className="px-4 py-2 border">{t("actividades.end_date")}</th>
+            <th className="px-4 py-2 border">{t("actividades.status")}</th>
           </tr>
         </thead>
         <tbody>
           {actividades.length === 0 ? (
             <tr>
               <td colSpan="5" className="text-center py-4 text-gray-500">
-                No hay actividades registradas
+                {t("actividades.no_records")}
               </td>
             </tr>
           ) : (
@@ -63,7 +65,7 @@ export default function ActividadesPage() {
                   {act.fechafin ? new Date(act.fechafin).toLocaleString() : "-"}
                 </td>
                 <td className="px-4 py-2 border">
-                  {act.actcerrada ? "🔒 Cerrada" : "✅ Abierta"}
+                  {act.actcerrada ? t("actividades.closed") : t("actividades.open")}
                 </td>
               </tr>
             ))

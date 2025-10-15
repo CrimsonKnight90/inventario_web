@@ -1,10 +1,7 @@
 # ============================================================
 # Archivo: backend/routes/productos.py
-# Descripción: Rutas de gestión de productos (crear, leer, listar,
-#              actualizar y eliminar) con seguridad por roles y
-#              asignación automática de empresa_id desde el usuario autenticado.
+# Descripción: Rutas de gestión de productos (con i18n)
 # Autor: CrimsonKnight90
-# Tecnologías: FastAPI, SQLAlchemy, Pydantic
 # ============================================================
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -14,34 +11,25 @@ from backend.models.producto import Producto
 from backend.schemas.producto import ProductoCreate, ProductoRead, ProductoUpdate
 from backend.security.deps import get_current_user, require_admin
 from backend.models.usuario import Usuario
+from backend.i18n.messages import get_message
 
 router = APIRouter(prefix="/productos", tags=["Productos"])
-
-# ------------------------------------------------------------
-# Crear producto (solo admin)
-# ------------------------------------------------------------
 
 @router.post("/", response_model=ProductoRead, dependencies=[Depends(require_admin)])
 def crear_producto(
     producto: ProductoCreate,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(get_current_user)
+    current_user: Usuario = Depends(get_current_user),
+    lang: str = "es"
 ) -> Producto:
-    """
-    Crea un nuevo producto dentro de la empresa del usuario autenticado.
-    - Valida duplicados por nombre dentro de la empresa.
-    - Valida precio y stock no negativos.
-    - Asigna automáticamente empresa_id desde current_user.
-    """
     existente = db.query(Producto).filter(
         Producto.nombre == producto.nombre,
-        Producto.empresa_id == current_user.empresa_id
     ).first()
     if existente:
-        raise HTTPException(status_code=400, detail="Ya existe un producto con ese nombre en la empresa")
+        raise HTTPException(status_code=400, detail=get_message("producto_existente", lang))
 
     if producto.precio < 0 or producto.stock < 0:
-        raise HTTPException(status_code=400, detail="Precio y stock deben ser valores positivos")
+        raise HTTPException(status_code=400, detail=get_message("producto_precio_stock_invalidos", lang))
 
     nuevo = Producto(
         nombre=producto.nombre,
@@ -49,7 +37,6 @@ def crear_producto(
         precio=producto.precio,
         stock=producto.stock if producto.stock is not None else 0,
         categoria_id=producto.categoria_id,
-        empresa_id=current_user.empresa_id
     )
 
     db.add(nuevo)
@@ -57,79 +44,51 @@ def crear_producto(
     db.refresh(nuevo)
     return nuevo
 
-# ------------------------------------------------------------
-# Listar productos (cualquier usuario autenticado)
-# ------------------------------------------------------------
-
 @router.get("/", response_model=list[ProductoRead])
 def listar_productos(
     db: Session = Depends(get_db),
     current_user: Usuario = Depends(get_current_user)
 ) -> list[Producto]:
-    """
-    Lista todos los productos visibles para el usuario autenticado.
-    Nota: actualmente devuelve todos los productos; se puede filtrar
-    por empresa si se requiere.
-    """
     return db.query(Producto).all()
-
-# ------------------------------------------------------------
-# Obtener producto por ID (cualquier usuario autenticado)
-# ------------------------------------------------------------
 
 @router.get("/{producto_id}", response_model=ProductoRead)
 def obtener_producto(
     producto_id: int,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(get_current_user)
+    current_user: Usuario = Depends(get_current_user),
+    lang: str = "es"
 ) -> Producto:
-    """
-    Obtiene un producto por su ID.
-    - Responde 404 si el producto no existe.
-    """
     producto = db.query(Producto).filter(Producto.id == producto_id).first()
     if not producto:
-        raise HTTPException(status_code=404, detail="Producto no encontrado")
+        raise HTTPException(status_code=404, detail=get_message("producto_no_encontrado", lang))
     return producto
-
-# ------------------------------------------------------------
-# Actualizar producto (solo admin)
-# ------------------------------------------------------------
 
 @router.put("/{producto_id}", response_model=ProductoRead, dependencies=[Depends(require_admin)])
 def actualizar_producto(
     producto_id: int,
     datos: ProductoUpdate,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(get_current_user)
+    current_user: Usuario = Depends(get_current_user),
+    lang: str = "es"
 ) -> Producto:
-    """
-    Actualiza un producto existente dentro de la empresa del usuario autenticado.
-    - Valida duplicados por nombre (antes de aplicar cambios).
-    - Valida precio y stock no negativos.
-    - Fuerza empresa_id al de current_user para evitar inconsistencias.
-    """
     producto = db.query(Producto).filter(Producto.id == producto_id).first()
     if not producto:
-        raise HTTPException(status_code=404, detail="Producto no encontrado")
+        raise HTTPException(status_code=404, detail=get_message("producto_no_encontrado", lang))
 
-    # ✅ Validar duplicados ANTES de aplicar cambios
     if datos.nombre and datos.nombre != producto.nombre:
         existente = db.query(Producto).filter(
             Producto.nombre == datos.nombre,
             Producto.empresa_id == current_user.empresa_id,
-            Producto.id != producto_id   # excluimos explícitamente el mismo producto
+            Producto.id != producto_id
         ).first()
         if existente:
-            raise HTTPException(status_code=400, detail="Ya existe otro producto con ese nombre en la empresa")
+            raise HTTPException(status_code=400, detail=get_message("producto_existente", lang))
 
-    # Validar precio y stock si se envían
     if datos.precio is not None and datos.precio < 0:
-        raise HTTPException(status_code=400, detail="El precio debe ser positivo")
+        raise HTTPException(status_code=400, detail=get_message("producto_precio_invalido", lang))
     if datos.stock is not None and datos.stock < 0:
-        raise HTTPException(status_code=400, detail="El stock debe ser positivo")
+        raise HTTPException(status_code=400, detail=get_message("producto_stock_invalido", lang))
 
-    # ✅ Aplicar cambios solo después de validar
     for key, value in datos.dict(exclude_unset=True, exclude_none=True).items():
         setattr(producto, key, value)
 
@@ -139,22 +98,15 @@ def actualizar_producto(
     db.refresh(producto)
     return producto
 
-# ------------------------------------------------------------
-# Eliminar producto (solo admin)
-# ------------------------------------------------------------
-
 @router.delete("/{producto_id}", dependencies=[Depends(require_admin)])
 def eliminar_producto(
     producto_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    lang: str = "es"
 ) -> dict:
-    """
-    Elimina un producto por ID.
-    - Responde 404 si el producto no existe.
-    """
     producto = db.query(Producto).filter(Producto.id == producto_id).first()
     if not producto:
-        raise HTTPException(status_code=404, detail="Producto no encontrado")
+        raise HTTPException(status_code=404, detail=get_message("producto_no_encontrado", lang))
     db.delete(producto)
     db.commit()
-    return {"detail": "Producto eliminado correctamente"}
+    return {"detail": get_message("producto_eliminado_ok", lang)}

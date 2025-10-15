@@ -16,9 +16,5 @@ class Usuario(Base):
     email = Column(String(120), unique=True, index=True, nullable=False)
     password = Column(String(255), nullable=False)  # ⚠️ se guarda hasheada
 
-    # Relación con Empresa
-    empresa_id = Column(Integer, ForeignKey("empresas.id"), nullable=False)
-    empresa = relationship("Empresa", back_populates="usuarios")
-
     # Rol de usuario
     role = Column(String(50), default="empleado")

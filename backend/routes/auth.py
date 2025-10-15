@@ -1,30 +1,34 @@
 # ============================================================
 # Archivo: backend/routes/auth.py
-# Descripción: Endpoints de autenticación (login y perfil)
+# Descripción: Endpoints de autenticación (login y perfil) con i18n
 # Autor: CrimsonKnight90
 # ============================================================
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-
 from backend.db.session import get_db
 from backend.models.usuario import Usuario
 from backend.security.auth import create_access_token, verify_password
 from backend.security.deps import get_current_user
 from backend.schemas.auth import LoginResponse, UserProfile
+from backend.i18n.messages import get_message
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 # 🔹 Login: devuelve token JWT
 @router.post("/token", response_model=LoginResponse)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db),
+    lang: str = "es"
+):
     # Buscar usuario por email (OAuth2 usa "username" para el campo)
     user: Usuario | None = db.query(Usuario).filter(Usuario.email == form_data.username).first()
     if not user or not verify_password(form_data.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Credenciales inválidas",
+            detail=get_message("invalid_credentials", lang),
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -39,5 +43,4 @@ def perfil(current_user: Usuario = Depends(get_current_user)):
         nombre=current_user.nombre,
         email=current_user.email,
         role=current_user.role,
-        empresa_id=current_user.empresa_id,
     )
