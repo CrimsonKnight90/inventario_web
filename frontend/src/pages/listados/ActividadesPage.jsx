@@ -5,11 +5,10 @@
 // ============================================================
 
 import { useEffect, useState } from "react"
-import { useApiClient } from "../../utils/apiClient"
+import { apiClient } from "../../utils/apiClient"
 import { useTranslation } from "react-i18next"
 
 export default function ActividadesPage() {
-  const { request } = useApiClient()
   const { t } = useTranslation()
   const [actividades, setActividades] = useState([])
   const [loading, setLoading] = useState(true)
@@ -18,11 +17,10 @@ export default function ActividadesPage() {
   useEffect(() => {
     const fetchActividades = async () => {
       try {
-        const res = await request("/actividades")
-        const data = await res.json()
+        const data = await apiClient.get("/actividades")
         setActividades(data)
       } catch (err) {
-        setError(t("actividades.load_error"))
+        setError(t("actividades.load_error", { defaultValue: "Error al cargar actividades" }))
       } finally {
         setLoading(false)
       }
@@ -30,12 +28,12 @@ export default function ActividadesPage() {
     fetchActividades()
   }, [])
 
-  if (loading) return <p className="p-6">⏳ {t("actividades.loading")}</p>
+  if (loading) return <p className="p-6">⏳ {t("actividades.loading", { defaultValue: "Cargando actividades..." })}</p>
   if (error) return <p className="p-6 text-red-500">{error}</p>
 
   return (
     <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">📋 {t("actividades.list_title")}</h1>
+      <h1 className="text-xl font-bold mb-4">📋 {t("actividades.list_title", { defaultValue: "Listado de Actividades" })}</h1>
       <table className="min-w-full bg-white border border-gray-200 rounded shadow">
         <thead className="bg-gray-100">
           <tr>

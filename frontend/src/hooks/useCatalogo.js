@@ -5,12 +5,11 @@
 // ============================================================
 
 import { useState, useEffect } from "react"
-import { useApiClient } from "../utils/apiClient"
+import { apiClient } from "../utils/apiClient"
 import { useNotification } from "./useNotification"
 import { useTranslation } from "react-i18next"
 
 export function useCatalogo(endpoint, { incluirInactivos = true } = {}) {
-  const { request } = useApiClient()
   const { notify } = useNotification()
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
@@ -19,8 +18,7 @@ export function useCatalogo(endpoint, { incluirInactivos = true } = {}) {
   const fetchAll = async () => {
     setLoading(true)
     try {
-      const res = await request(`${endpoint}/?incluir_inactivos=${incluirInactivos}`)
-      const json = await res.json()
+      const json = await apiClient.get(`${endpoint}/?incluir_inactivos=${incluirInactivos}`)
       setData(json)
     } catch {
       notify.error(t("catalogo.load_error", { endpoint }))
@@ -33,20 +31,12 @@ export function useCatalogo(endpoint, { incluirInactivos = true } = {}) {
 
   const create = async (payload) => {
     try {
-      const res = await request(`${endpoint}/`, {
-        method: "POST",
-        body: JSON.stringify(payload),
-      })
-      const json = await res.json()
-      if (!res.ok) {
-        notify.error(json.detail || t("catalogo.create_error", { endpoint }))
-        return null
-      }
+      const json = await apiClient.post(`${endpoint}/`, payload)
       notify.success(t("catalogo.create_success"))
       fetchAll()
-      return json.data
-    } catch {
-      notify.error(t("catalogo.server_error"))
+      return json
+    } catch (err) {
+      notify.error(err.message || t("catalogo.create_error", { endpoint }))
       return null
     }
   }
@@ -54,31 +44,21 @@ export function useCatalogo(endpoint, { incluirInactivos = true } = {}) {
   const deactivate = async (id) => {
     if (!window.confirm(t("catalogo.confirm_deactivate", { id }))) return
     try {
-      const res = await request(`${endpoint}/${encodeURIComponent(id)}/desactivar`, { method: "PATCH" })
-      const json = await res.json().catch(() => ({}))
-      if (!res.ok) {
-        notify.error(json.detail || t("catalogo.deactivate_error"))
-        return
-      }
-      notify.warning(json.detail || t("catalogo.deactivate_success", { id }))
+      await apiClient.patch(`${endpoint}/${encodeURIComponent(id)}/desactivar`)
+      notify.warning(t("catalogo.deactivate_success", { id }))
       fetchAll()
-    } catch {
-      notify.error(t("catalogo.server_error"))
+    } catch (err) {
+      notify.error(err.message || t("catalogo.deactivate_error"))
     }
   }
 
   const activate = async (id) => {
     try {
-      const res = await request(`${endpoint}/${encodeURIComponent(id)}/reactivar`, { method: "PATCH" })
-      const json = await res.json()
-      if (!res.ok) {
-        notify.error(json.detail || t("catalogo.activate_error"))
-        return
-      }
+      await apiClient.patch(`${endpoint}/${encodeURIComponent(id)}/reactivar`)
       notify.success(t("catalogo.activate_success", { id }))
       fetchAll()
-    } catch {
-      notify.error(t("catalogo.server_error"))
+    } catch (err) {
+      notify.error(err.message || t("catalogo.activate_error"))
     }
   }
 

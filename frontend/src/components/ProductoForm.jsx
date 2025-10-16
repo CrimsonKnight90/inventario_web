@@ -1,16 +1,15 @@
 // ============================================================
 // Archivo: frontend/src/components/ProductoForm.jsx
 // Descripción: Formulario controlado para crear productos (con i18n).
-//              Usa useApiClient y API_URL para enviar POST al backend.
+//              Usa apiClient centralizado para enviar POST al backend.
 // Autor: CrimsonKnight90
 // ============================================================
 
 import { useState } from "react"
-import { useApiClient } from "../utils/apiClient"
+import { apiClient } from "../utils/apiClient"
 import { useTranslation } from "react-i18next"
 
 export default function ProductoForm({ onCreated }) {
-  const { request } = useApiClient()
   const { t } = useTranslation()
   const [nombre, setNombre] = useState("")
   const [descripcion, setDescripcion] = useState("")
@@ -26,31 +25,24 @@ export default function ProductoForm({ onCreated }) {
     setLoading(true)
 
     try {
-      const response = await request("/productos/", {
-        method: "POST",
-        body: JSON.stringify({
-          nombre,
-          descripcion,
-          precio: parseFloat(precio),
-          stock: stock ? parseInt(stock) : 0,
-          categoria_id: categoriaId ? parseInt(categoriaId) : null,
-        }),
+      const data = await apiClient.post("/productos/", {
+        nombre,
+        descripcion,
+        precio: parseFloat(precio),
+        stock: stock ? parseInt(stock) : 0,
+        categoria_id: categoriaId ? parseInt(categoriaId) : null,
       })
 
-      if (!response.ok) {
-        const msg = await response.text()
-        throw new Error(msg || t("producto.error_create", { status: response.status }))
-      }
-
-      const data = await response.json()
       if (onCreated) onCreated(data) // callback para refrescar lista
+
+      // Reset formulario
       setNombre("")
       setDescripcion("")
       setPrecio("")
       setStock("")
       setCategoriaId("")
     } catch (err) {
-      setError(err.message)
+      setError(err.message || t("producto.error_create"))
     } finally {
       setLoading(false)
     }

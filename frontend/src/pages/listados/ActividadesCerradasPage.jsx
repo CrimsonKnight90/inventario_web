@@ -5,11 +5,10 @@
 // ============================================================
 
 import { useEffect, useState } from "react"
-import { useApiClient } from "../../utils/apiClient"
+import { apiClient } from "../../utils/apiClient"
 import { useTranslation } from "react-i18next"
 
 export default function ActividadesCerradasPage() {
-  const { request } = useApiClient()
   const { t } = useTranslation()
   const [actividades, setActividades] = useState([])
   const [loading, setLoading] = useState(true)
@@ -18,11 +17,10 @@ export default function ActividadesCerradasPage() {
   useEffect(() => {
     const fetchActividades = async () => {
       try {
-        const res = await request("/actividades/cerradas")
-        const data = await res.json()
+        const data = await apiClient.get("/actividades/cerradas")
         setActividades(data)
       } catch (err) {
-        setError(t("actividades.error_load_closed"))
+        setError(t("actividades.error_load_closed", { defaultValue: "Error al cargar actividades cerradas" }))
       } finally {
         setLoading(false)
       }
@@ -30,12 +28,12 @@ export default function ActividadesCerradasPage() {
     fetchActividades()
   }, [])
 
-  if (loading) return <p className="p-6">⏳ {t("actividades.loading_closed")}</p>
+  if (loading) return <p className="p-6">⏳ {t("actividades.loading_closed", { defaultValue: "Cargando actividades cerradas..." })}</p>
   if (error) return <p className="p-6 text-red-500">{error}</p>
 
   return (
     <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">🔒 {t("actividades.closed_title")}</h1>
+      <h1 className="text-xl font-bold mb-4">🔒 {t("actividades.closed_title", { defaultValue: "Actividades Cerradas" })}</h1>
       <table className="min-w-full bg-white border border-gray-200 rounded shadow">
         <thead className="bg-gray-100">
           <tr>

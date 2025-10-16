@@ -18,3 +18,6 @@ from backend.models.centro_costo import CentroCosto
 from backend.models.consumo import Consumo
 from backend.models.contraparte import Contraparte
 from backend.models.combinacion import Combinacion
+
+# Branding / Configuración de la app
+from backend.models.config import Config

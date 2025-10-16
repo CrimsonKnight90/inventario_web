@@ -1,32 +1,33 @@
-// frontend/src/pages/operativo/CerrarActividadPage.jsx
+// ============================================================
+// Archivo: frontend/src/pages/operativo/CerrarActividadPage.jsx
+// Descripción: Listado de actividades abiertas con opción de cierre
+// Autor: CrimsonKnight90
+// ============================================================
+
 import { useEffect, useState } from "react"
-import { useApiClient } from "../../utils/apiClient"
+import { apiClient } from "../../utils/apiClient"
 import { useTranslation } from "react-i18next"
 
 export default function CerrarActividadPage() {
-  const { request } = useApiClient()
   const { t } = useTranslation()
   const [actividades, setActividades] = useState([])
   const [mensaje, setMensaje] = useState("")
 
   useEffect(() => {
-    request("/actividades/")
-      .then((res) => res.json())
+    apiClient.get("/actividades/")
       .then((data) => setActividades(data.filter((a) => !a.actcerrada)))
       .catch(() => setMensaje("❌ " + t("actividades.load_error")))
   }, [])
 
   const cerrarActividad = async (actividad) => {
     try {
-      const res = await request(`/actividades/${actividad.codact}/cerrar`, {
-        method: "POST",
-        body: JSON.stringify({ observaciones: "Cerrada desde frontend" }),
+      await apiClient.post(`/actividades/${actividad.codact}/cerrar`, {
+        observaciones: "Cerrada desde frontend",
       })
-      if (!res.ok) throw new Error(t("actividades.error_close"))
       setMensaje(t("actividades.close_success"))
       setActividades((prev) => prev.filter((a) => a.codact !== actividad.codact))
     } catch (err) {
-      setMensaje("❌ " + err.message)
+      setMensaje("❌ " + (err.message || t("actividades.error_close")))
     }
   }
 

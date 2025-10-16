@@ -5,11 +5,10 @@
 // ============================================================
 
 import { useState } from "react"
-import { useApiClient } from "../utils/apiClient"
+import { apiClient } from "../utils/apiClient"
 import { useTranslation } from "react-i18next"
 
 export default function MovimientoForm({ productoId, onCreated }) {
-  const { request } = useApiClient()
   const { t } = useTranslation()
   const [tipo, setTipo] = useState("entrada")
   const [cantidad, setCantidad] = useState("")
@@ -22,25 +21,15 @@ export default function MovimientoForm({ productoId, onCreated }) {
     setLoading(true)
 
     try {
-      const response = await request("/movimientos/", {
-        method: "POST",
-        body: JSON.stringify({
-          tipo,
-          cantidad: parseInt(cantidad),
-          producto_id: productoId,
-        }),
+      const data = await apiClient.post("/movimientos/", {
+        tipo,
+        cantidad: parseInt(cantidad),
+        producto_id: productoId,
       })
-
-      if (!response.ok) {
-        const msg = await response.text()
-        throw new Error(msg || t("movimiento.error_create", { status: response.status }))
-      }
-
-      const data = await response.json()
       if (onCreated) onCreated(data)
       setCantidad("")
     } catch (err) {
-      setError(err.message)
+      setError(err.message || t("movimiento.error_create"))
     } finally {
       setLoading(false)
     }

@@ -6,12 +6,11 @@
 
 import {useEffect, useState} from "react"
 import {useAuth} from "../context/AuthContext"
-import {useApiClient} from "../utils/apiClient"
+import {apiClient} from "../utils/apiClient"
 import {useTranslation} from "react-i18next"
 
 export default function AdminPage() {
     const {user, logout} = useAuth()
-    const {request} = useApiClient()
     const {t} = useTranslation()
 
     const [stats, setStats] = useState({productos: 0, actividades: 0, cerradas: 0, usuarios: 0})
@@ -30,19 +29,13 @@ export default function AdminPage() {
 
     const fetchData = async () => {
         try {
-            const [prodRes, actRes, cerrRes, usrRes, empRes] = await Promise.all([
-                request("/productos/"),
-                request("/actividades/"),
-                request("/actividades/cerradas"),
-                request("/usuarios/"),
-                request("/empresas/")
+            const [productos, actividades, cerradas, usuarios, empresas] = await Promise.all([
+                apiClient.get("/productos/"),
+                apiClient.get("/actividades/"),
+                apiClient.get("/actividades/cerradas"),
+                apiClient.get("/usuarios/"),
+                apiClient.get("/empresas/")
             ])
-
-            const productos = await prodRes.json()
-            const actividades = await actRes.json()
-            const cerradas = await cerrRes.json()
-            const usuarios = await usrRes.json()
-            const empresas = await empRes.json()
 
             setStats({
                 productos: productos.length,
@@ -63,7 +56,11 @@ export default function AdminPage() {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     const validarPassword = (pwd) =>
-        pwd.length >= 8 && /[A-Z]/.test(pwd) && /[a-z]/.test(pwd) && /[0-9]/.test(pwd) && /[^A-Za-z0-9]/.test(pwd)
+        pwd.length >= 8 &&
+        /[A-Z]/.test(pwd) &&
+        /[a-z]/.test(pwd) &&
+        /[0-9]/.test(pwd) &&
+        /[^A-Za-z0-9]/.test(pwd)
 
     const handleCrearUsuario = async (e) => {
         e.preventDefault()
@@ -84,42 +81,33 @@ export default function AdminPage() {
         }
 
         try {
-            const res = await request("/usuarios/", {
-                method: "POST",
-                body: JSON.stringify(nuevoUsuario)
-            })
-            if (!res.ok) throw new Error(t("admin.error_create_user"))
+            await apiClient.post("/usuarios/", nuevoUsuario)
             setMensaje(t("admin.user_created"))
             setNuevoUsuario({nombre: "", email: "", password: "", role: "empleado", empresa_id: ""})
             fetchData()
         } catch (err) {
-            setMensaje("❌ " + err.message)
+            setMensaje("❌ " + (err.message || t("admin.error_create_user")))
         }
     }
 
     const handleCambiarRol = async (id, nuevoRol) => {
         try {
-            const res = await request(`/usuarios/${id}/rol`, {
-                method: "PUT",
-                body: JSON.stringify({role: nuevoRol})
-            })
-            if (!res.ok) throw new Error(t("admin.error_change_role"))
+            await apiClient.put(`/usuarios/${id}/rol`, {role: nuevoRol})
             setMensaje(t("admin.role_updated"))
             fetchData()
         } catch (err) {
-            setMensaje("❌ " + err.message)
+            setMensaje("❌ " + (err.message || t("admin.error_change_role")))
         }
     }
 
     const handleEliminarUsuario = async (id) => {
         if (!window.confirm(t("admin.confirm_delete"))) return
         try {
-            const res = await request(`/usuarios/${id}`, {method: "DELETE"})
-            if (!res.ok) throw new Error(t("admin.error_delete_user"))
+            await apiClient.delete(`/usuarios/${id}`)
             setMensaje(t("admin.user_deleted"))
             fetchData()
         } catch (err) {
-            setMensaje("❌ " + err.message)
+            setMensaje("❌ " + (err.message || t("admin.error_delete_user")))
         }
     }
 
@@ -127,8 +115,10 @@ export default function AdminPage() {
         <div className="min-h-screen bg-yellow-50 p-8">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold text-yellow-800">🛠️ {t("admin.title")}</h1>
-                <button onClick={logout}
-                        className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition">
+                <button
+                    onClick={logout}
+                    className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
+                >
                     {t("dashboard.logout")}
                 </button>
             </div>
@@ -233,7 +223,9 @@ export default function AdminPage() {
                                     className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
                                 >
                                     {t("admin.change_role_to", {
-                                        role: u.role === "admin" ? t("admin.role_employee") : t("admin.role_admin")
+                                        role: u.role === "admin"
+                                            ? t("admin.role_employee")
+                                            : t("admin.role_admin")
                                     })}
                                 </button>
                                 <button

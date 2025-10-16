@@ -1,16 +1,18 @@
 # ============================================================
 # Archivo: backend/main.py
-# Descripción: Punto de entrada de la API FastAPI
+# Descripción: Punto de entrada de la API FastAPI con routers, CORS,
+#              middleware de idioma y soporte para servir archivos estáticos (/uploads)
 # Autor: CrimsonKnight90
 # ============================================================
 
-from fastapi import FastAPI
+import os
+from fastapi import FastAPI, Request
 from backend.db.session import engine
 from backend.db import base  # importa Base para que Alembic detecte los modelos
 from sqlalchemy import text
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import Request
-from backend.i18n.messages import get_message  # 🔹 nuevo módulo de mensajes
+from fastapi.staticfiles import StaticFiles
+from backend.i18n.messages import get_message
 
 # Routers existentes
 from backend.routes import (
@@ -21,7 +23,8 @@ from backend.routes import (
 # Nuevos routers
 from backend.routes import (
     proveedores, documentos, tipos_documentos, um, monedas,
-    centros_costo, consumos, contrapartes, combinaciones
+    centros_costo, consumos, contrapartes, combinaciones,
+    config
 )
 
 app = FastAPI(
@@ -50,6 +53,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ------------------------------------------------------------
+# Servir archivos estáticos (logos, uploads)
+# ------------------------------------------------------------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOADS_DIR = os.path.join(BASE_DIR, "uploads")
+
+# Crear carpeta uploads si no existe
+os.makedirs(UPLOADS_DIR, exist_ok=True)
+
+app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 
 # ------------------------------------------------------------
 # Endpoints básicos
@@ -86,3 +100,4 @@ app.include_router(centros_costo.router)
 app.include_router(consumos.router)
 app.include_router(contrapartes.router)
 app.include_router(combinaciones.router)
+app.include_router(config.router, tags=["config"])

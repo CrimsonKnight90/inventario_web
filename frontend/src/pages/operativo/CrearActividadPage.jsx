@@ -1,10 +1,14 @@
-// frontend/src/pages/operativo/CrearActividadPage.jsx
+// ============================================================
+// Archivo: frontend/src/pages/operativo/CrearActividadPage.jsx
+// Descripción: Formulario para crear nuevas actividades (i18n)
+// Autor: CrimsonKnight90
+// ============================================================
+
 import { useState } from "react"
-import { useApiClient } from "../../utils/apiClient"
+import { apiClient } from "../../utils/apiClient"
 import { useTranslation } from "react-i18next"
 
 export default function CrearActividadPage() {
-  const { request } = useApiClient()
   const { t } = useTranslation()
   const [form, setForm] = useState({ nomact: "", fechaini: "", fechafin: "" })
   const [mensaje, setMensaje] = useState("")
@@ -16,15 +20,11 @@ export default function CrearActividadPage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const res = await request("/actividades/", {
-        method: "POST",
-        body: JSON.stringify(form),
-      })
-      if (!res.ok) throw new Error(t("actividades.error_create"))
+      await apiClient.post("/actividades/", form)
       setMensaje(t("actividades.create_success"))
       setForm({ nomact: "", fechaini: "", fechafin: "" })
     } catch (err) {
-      setMensaje("❌ " + err.message)
+      setMensaje("❌ " + (err.message || t("actividades.error_create")))
     }
   }
 
