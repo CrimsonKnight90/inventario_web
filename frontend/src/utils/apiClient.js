@@ -1,61 +1,60 @@
 // ============================================================
 // Archivo: frontend/src/utils/apiClient.js
-// Descripción: Cliente centralizado para llamadas a la API.
-//              Incluye métodos get/post/put/delete y adjunta token JWT.
+// Descripción: Cliente HTTP centralizado (fetch) con base URL, auth, manejo de FormData y retorno consistente de JSON
 // Autor: CrimsonKnight90
 // ============================================================
 
-const API_BASE = "http://localhost:8000"   // 👈 apunta al backend FastAPI
+import { API_URL } from "../config"
 
-export const apiClient = {
-  async request(url, options = {}) {
-    // 👇 Ahora leemos el token desde sessionStorage (alineado con AuthContext)
-    const token = sessionStorage.getItem("token")
+const isFormData = (body) => typeof FormData !== "undefined" && body instanceof FormData
 
-    const defaultHeaders =
-      options.body instanceof FormData ? {} : { "Content-Type": "application/json" }
+async function request(method, url, body = null, extraHeaders = {}) {
+  const headers = { ...extraHeaders }
 
-    const response = await fetch(`${API_BASE}${url}`, {
-      ...options,
-      headers: {
-        ...defaultHeaders,
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...options.headers,
-      },
-    })
+  // 🔑 Inyectar token desde sessionStorage (consistente con AuthContext y LoginPage)
+  const token = sessionStorage.getItem("token")
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`
+  }
 
-    if (response.status === 401) {
-      // Manejo de sesión expirada
+  let fetchOptions = { method, headers }
+
+  if (body !== null) {
+    if (isFormData(body)) {
+      fetchOptions.body = body
+    } else {
+      headers["Content-Type"] = "application/json"
+      fetchOptions.body = JSON.stringify(body)
+    }
+  }
+
+  const resp = await fetch(`${API_URL}${url}`, fetchOptions)
+  const text = await resp.text()
+  let data = null
+  try {
+    data = text ? JSON.parse(text) : null
+  } catch {
+    data = text
+  }
+
+  // Manejo de errores
+  if (!resp.ok) {
+    // Si es 401, limpiar sesión y redirigir a login
+    if (resp.status === 401) {
       sessionStorage.removeItem("token")
       window.location.href = "/login"
-      throw new Error("Sesión expirada. Vuelve a iniciar sesión.")
     }
+    const msg = typeof data === "object" ? JSON.stringify(data) : text || `HTTP ${resp.status}`
+    throw new Error(`Error HTTP ${resp.status}: ${msg}`)
+  }
 
-    if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(`Error HTTP ${response.status}: ${errorText}`)
-    }
+  return data
+}
 
-    return response.json()
-  },
-
-  get(url) {
-    return this.request(url, { method: "GET" })
-  },
-
-  post(url, body) {
-    return this.request(url, { method: "POST", body: JSON.stringify(body) })
-  },
-
-  put(url, body) {
-    return this.request(url, { method: "PUT", body: JSON.stringify(body) })
-  },
-
-  patch(url, body) {
-    return this.request(url, { method: "PATCH", body: JSON.stringify(body) })
-  },
-
-  delete(url) {
-    return this.request(url, { method: "DELETE" })
-  },
+export const apiClient = {
+  get: (url, headers = {}) => request("GET", url, null, headers),
+  post: (url, body, headers = {}) => request("POST", url, body, headers),
+  put: (url, body, headers = {}) => request("PUT", url, body, headers),
+  patch: (url, body, headers = {}) => request("PATCH", url, body, headers),
+  delete: (url, headers = {}) => request("DELETE", url, null, headers),
 }

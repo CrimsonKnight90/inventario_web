@@ -3,12 +3,12 @@
     "title": "Inventario"
   },
   "login": {
-  "title": "Iniciar sesión",
-  "email": "Correo electrónico",
-  "password": "Contraseña",
-  "button": "Entrar",
-  "error": "Credenciales inválidas"
-},
+    "title": "Iniciar sesión",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "button": "Entrar",
+    "error": "Credenciales inválidas"
+  },
   "nav": {
     "dashboard": "Dashboard",
     "products": "Productos",
@@ -24,7 +24,20 @@
     "units": "Unidades de Medida",
     "currencies": "Monedas",
     "doc_types": "Tipos de Documento",
-    "logout": "Cerrar sesión"
+    "logout": "Cerrar sesión",
+    "config": "Configuración"
+  },
+  "config": {
+    "title": "⚙️ Configuración de Branding",
+    "company_name": "Nombre de la empresa",
+    "logo_url": "Logo (URL)",
+    "upload_logo": "Subir nuevo logo",
+    "primary_color": "Color primario",
+    "secondary_color": "Color secundario",
+    "save_button": "Guardar cambios",
+    "restore_button": "Restaurar colores por defecto",
+    "updated": "✅ Configuración actualizada",
+    "loading": "Cargando configuración..."
   },
   "catalogo": {
     "load_error": "❌ Error al cargar {{endpoint}}",
@@ -44,16 +57,75 @@
     "desactivar": "Desactivar",
     "activar": "Activar"
   },
+
+  "categorias": {
+    "title": "Categorías",
+    "add_button": "Crear Categoría",
+    "show_active": "Ver solo activas",
+    "show_all": "Ver todas (incl. inactivas)",
+    "name": "Nombre",
+    "desc": "Descripción",
+    "status": "Estado",
+    "actions": "Acciones",
+    "empty": "No hay categorías",
+    "active": "Activa",
+    "inactive": "Inactiva",
+    "error_save": "Error al guardar categoría",
+    "edit_title": "Editar Categoría",
+    "create_title": "Nueva Categoría",
+    "warning_edit_name": "No se puede cambiar el nombre de una categoría que ya tiene productos asociados.",
+    "error_load": "Error al cargar categorías",
+    "create_success": "Categoría creada correctamente",
+    "update_success": "Categoría actualizada correctamente",
+    "error_update": "Error al actualizar categoría",
+    "confirm_deactivate": "¿Desactivar esta categoría?",
+    "deactivate_success": "Categoría desactivada",
+    "error_deactivate": "Error al desactivar categoría",
+    "activate_success": "Categoría reactivada",
+    "error_activate": "Error al reactivar categoría",
+    "deactivated_ok": "Desactivar",
+    "reactivated_ok": "Activar"
+  },
+  "loading": "Cargando...",
+  "edit": "Editar",
+  "deactivate": "Desactivar",
+  "reactivate": "Reactivar",
+  "cancel": "Cancelar",
+  "save": "Guardar",
+
   "producto": {
     "create_title": "Crear Producto",
+    "edit_title": "Editar Producto",
     "name": "Nombre",
     "description": "Descripción",
     "price": "Precio",
-    "stock": "Stock inicial",
-    "category_id": "ID de Categoría",
+    "existencia_min": "Existencia mínima",
+    "existencia_max": "Existencia máxima",
+    "category": "Categoría",
     "create_button": "Crear Producto",
+    "update_button": "Actualizar",
+    "saving": "Guardando...",
     "creating": "Creando...",
-    "error_create": "Error al crear producto (código {{status}})"
+    "error_create": "Error al crear producto (código {{status}})",
+    "error_save": "Error al guardar producto",
+    "error_existencias": "La existencia mínima no puede ser mayor que la máxima",
+    "no_um_moneda": "Debe crear primero una UM y una Moneda",
+    "no_categoria": "Debe crear primero una categoría",
+    "select_um": "Selecciona una UM",
+    "select_moneda": "Selecciona una Moneda",
+    "select_category": "Selecciona una categoría",
+    "created_ok": "✅ Producto creado correctamente",
+    "updated_ok": "✅ Producto actualizado correctamente",
+    "deactivated_ok": "Desactivar",
+    "reactivated_ok": "Activar"
+  },
+  "productos": {
+    "title": "Lista de Productos",
+    "load_error": "No se pudieron cargar los productos",
+    "empty": "No hay productos disponibles.",
+    "no_records": "No hay productos",
+    "show_active": "Ver solo activos",
+    "show_all": "Ver todos (incl. inactivos)"
   },
   "movimiento": {
     "entrada": "Entrada",
@@ -61,12 +133,6 @@
     "cantidad": "Cantidad",
     "submit": "Registrar",
     "error_create": "Error al registrar movimiento (código {{status}})"
-  },
-  "productos": {
-    "title": "Lista de Productos",
-    "load_error": "No se pudieron cargar los productos",
-    "empty": "No hay productos disponibles.",
-    "stock": "Stock"
   },
   "dashboard": {
     "welcome": "Bienvenido al Dashboard",

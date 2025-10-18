@@ -12,10 +12,10 @@ const AuthContext = createContext()
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(sessionStorage.getItem("token") || null)
-  const [user, setUser] = useState(null) // aquí guardaremos email y rol
+  const [user, setUser] = useState(null)
   const navigate = useNavigate()
 
-  // Guardar token en sessionStorage cuando cambie
+  // Persistencia del token
   useEffect(() => {
     if (token) {
       sessionStorage.setItem("token", token)
@@ -24,58 +24,48 @@ export function AuthProvider({ children }) {
     }
   }, [token])
 
-  // Restaurar usuario desde token en el primer render.
-  // - Decodifica el JWT si existe y no está expirado.
-  // - Si el token expiró, limpia sesión y redirige a /login.
+  // Restaurar usuario desde token
   useEffect(() => {
     try {
       if (!token) return
       const decoded = jwtDecode(token)
       const nowSec = Math.floor(Date.now() / 1000)
+
       if (decoded.exp && decoded.exp < nowSec) {
-        // Token expirado: limpiar y redirigir
-        setToken(null)
-        setUser(null)
-        sessionStorage.removeItem("token")
-        navigate("/login")
+        // Token expirado
+        logout()
         return
       }
-      // Poblar usuario (email en sub y rol en role según backend)
-      setUser({ email: decoded.sub, role: decoded.role })
+
+      setUser({ email: decoded.email || decoded.sub, role: decoded.role })
     } catch {
-      // Token malformado: limpiar por seguridad
-      setToken(null)
-      setUser(null)
-      sessionStorage.removeItem("token")
-      navigate("/login")
+      // Token inválido
+      logout()
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // Solo al montar; cambios posteriores de token se gestionan en login/logout
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const login = (jwt, userData) => {
-    // Establece token y usuario tras iniciar sesión correctamente
     setToken(jwt)
     setUser(userData)
   }
 
   const logout = () => {
-    // Limpia el estado de autenticación y navega a login
     setToken(null)
     setUser(null)
     sessionStorage.removeItem("token")
-    navigate("/login") // redirigir al login
+    navigate("/login")
   }
 
-  // Indica si hay sesión activa basada en token
   const isAuthenticated = Boolean(token)
-
-  // Devuelve encabezados comunes de autorización para fetch/axios
   const authHeader = () => (token ? { Authorization: `Bearer ${token}` } : {})
-
   const isAdmin = user?.role === "admin"
+  const hasRole = (role) => user?.role === role
 
   return (
-    <AuthContext.Provider value={{ token, user, login, logout, isAdmin, isAuthenticated, authHeader }}>
+    <AuthContext.Provider
+      value={{ token, user, login, logout, isAdmin, hasRole, isAuthenticated, authHeader }}
+    >
       {children}
     </AuthContext.Provider>
   )

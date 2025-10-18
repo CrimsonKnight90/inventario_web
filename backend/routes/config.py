@@ -18,6 +18,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
+
 # ------------------------------------------------------------
 # Leer configuración
 # ------------------------------------------------------------
@@ -25,30 +26,33 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 def read_config(db: Session = Depends(get_db)):
     cfg = crud_config.get_config(db)
     if not cfg:
-        # Valores por defecto profesionales
         return {
             "app_name": "Inventario Pro",
             "logo_url": "/uploads/logo.png",
-            "primary_color": "#1E293B",   # gris azulado oscuro
-            "secondary_color": "#3B82F6", # azul medio moderno
-            "background_color": "#F8FAFC" # gris muy claro
+            "primary_color": "#1E293B",
+            "secondary_color": "#3B82F6",
+            "background_color": "#F8FAFC",
+            "topbar_color": "#0F172A"  # 🔹 Nuevo
         }
     return cfg
 
+
 # ------------------------------------------------------------
-# Actualizar configuración
+# Actualizar configuración (parcial)
 # ------------------------------------------------------------
 @router.put("/config", response_model=ConfigOut)
 def update_config(config_in: ConfigUpdate, db: Session = Depends(get_db)):
+    # Actualiza campos parciales y devuelve el registro resultante
     return crud_config.update_config(db, config_in)
+
 
 # ------------------------------------------------------------
 # Subir logo y actualizar configuración
 # ------------------------------------------------------------
 @router.post("/config/logo", response_model=ConfigOut)
 async def upload_logo(
-    file: UploadFile = File(...),
-    db: Session = Depends(get_db)
+        file: UploadFile = File(...),
+        db: Session = Depends(get_db)
 ):
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Solo se permiten imágenes")
@@ -61,6 +65,7 @@ async def upload_logo(
     # URL accesible desde el frontend
     new_url = "/uploads/logo.png"
 
-    # Actualizar en DB
-    updated = crud_config.update_config(db, {"logo_url": new_url})
+    # Actualizar en DB usando ConfigUpdate (no dict) y devolver el objeto completo
+    config_in = ConfigUpdate(logo_url=new_url)
+    updated = crud_config.update_config(db, config_in)
     return updated

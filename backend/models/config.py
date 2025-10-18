@@ -16,3 +16,4 @@ class Config(Base):
     primary_color = Column(String(20), nullable=False, default="#1E293B")
     secondary_color = Column(String(20), nullable=False, default="#3B82F6")
     background_color = Column(String(20), nullable=False, default="#F8FAFC")
+    topbar_color = Column(String(20), nullable=False, default="#0F172A")  # 🔹 Nuevo

@@ -1,21 +1,37 @@
 // ============================================================
 // Archivo: frontend/src/components/Layout.jsx
-// Descripción: Layout base con sidebar lateral y área de contenido.
+// Descripción: Layout base con Topbar sticky y Navbar fixed
+//              con ErrorBoundary aislando solo el contenido.
 // Autor: CrimsonKnight90
 // ============================================================
 
 import Navbar from "./Navbar"
+import Topbar from "./Topbar"
+import ErrorBoundaryWrapper from "./ErrorBoundaryWrapper"
+import { useBranding } from "../context/BrandingContext"
 
 export default function Layout({ children }) {
-  return (
-    <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar */}
-      <Navbar />
+  const { branding } = useBranding()
 
-      {/* Contenido principal */}
-      <main className="flex-1 p-8">
-        <div className="max-w-6xl mx-auto">{children}</div>
-      </main>
+  return (
+    <div
+      className="flex flex-col min-h-screen"
+      style={{ backgroundColor: branding?.background_color || "#F8FAFC" }}
+    >
+      {/* Barra superior sticky */}
+      <div className="sticky top-0">
+        <Topbar />
+      </div>
+
+      {/* Contenedor principal */}
+      <div className="flex flex-1">
+        <Navbar />
+        <main className="flex-1 overflow-y-auto ml-64 pt-14 px-6">
+          <ErrorBoundaryWrapper>
+            {children}
+          </ErrorBoundaryWrapper>
+        </main>
+      </div>
     </div>
   )
 }

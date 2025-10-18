@@ -9,43 +9,68 @@ import { useCatalogo } from "../../hooks/useCatalogo"
 import CatalogoTable from "../../components/CatalogoTable"
 import Notification from "../../components/Notification"
 import { useTranslation } from "react-i18next"
+import AppPageContainer from "../../components/AppPageContainer"
+import AppSection from "../../components/AppSection"
+import AppHeading from "../../components/AppHeading"
+import AppForm from "../../components/AppForm"
+import AppInput from "../../components/AppInput"
+import AppButton from "../../components/AppButton"
 
 export default function MonedasPage() {
   const { data: monedas, create, activate, deactivate } = useCatalogo("/monedas")
   const { t } = useTranslation()
   const [form, setForm] = useState({ nombre: "" })
+  const [mensaje, setMensaje] = useState("")
+  const [error, setError] = useState("")
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    await create(form)
-    setForm({ nombre: "" })
+    try {
+      await create(form)
+      setMensaje(t("monedas.created_success", { defaultValue: "Moneda creada correctamente" }))
+      setForm({ nombre: "" })
+    } catch (err) {
+      setError("❌ " + (err.message || t("monedas.error_create", { defaultValue: "Error al crear moneda" })))
+    }
   }
 
   return (
-    <div className="p-6 max-w-3xl mx-auto bg-white rounded shadow">
-      <Notification />
-      <h1 className="text-2xl font-bold mb-4">💱 {t("monedas.title")}</h1>
+    <AppPageContainer>
+      {/* Notificación global */}
+      <Notification message={mensaje || error} type={error ? "error" : "success"} onClose={() => { setMensaje(""); setError(""); }} />
 
-      <form onSubmit={handleSubmit} className="flex space-x-2 mb-6">
-        <input
-          type="text"
-          placeholder={t("monedas.name_placeholder")}
-          value={form.nombre}
-          onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-          required
-          className="border px-3 py-2 rounded w-48"
+      <AppHeading level={1}>💱 {t("monedas.title", { defaultValue: "Gestión de Monedas" })}</AppHeading>
+
+      {/* Formulario de creación */}
+      <AppSection>
+        <AppForm onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
+          <div className="flex-1">
+            <label className="block mb-1 text-sm text-gray-600">
+              {t("monedas.name_label", { defaultValue: "Nombre de la moneda" })}
+            </label>
+            <AppInput
+              type="text"
+              placeholder={t("monedas.name_placeholder", { defaultValue: "Ej: Peso Cubano" })}
+              value={form.nombre}
+              onChange={(e) => setForm({ ...form, nombre: e.target.value })}
+              required
+            />
+          </div>
+          <AppButton type="submit" variant="primary">
+            {t("monedas.create_button", { defaultValue: "Crear" })}
+          </AppButton>
+        </AppForm>
+      </AppSection>
+
+      {/* Tabla de monedas */}
+      <AppSection>
+        <CatalogoTable
+          data={monedas}
+          columns={[{ key: "nombre", label: t("monedas.name", { defaultValue: "Nombre" }) }]}
+          onActivate={(m) => activate(m.nombre)}
+          onDeactivate={(m) => deactivate(m.nombre)}
         />
-        <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-          {t("monedas.create_button")}
-        </button>
-      </form>
-
-      <CatalogoTable
-        data={monedas}
-        columns={[{ key: "nombre", label: t("monedas.name") }]}
-        onActivate={(m) => activate(m.nombre)}
-        onDeactivate={(m) => deactivate(m.nombre)}
-      />
-    </div>
+      </AppSection>
+    </AppPageContainer>
   )
 }

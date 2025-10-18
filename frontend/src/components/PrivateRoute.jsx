@@ -14,17 +14,17 @@ import { useAuth } from "../context/AuthContext"
  * @param {ReactNode} children - Componente hijo a renderizar si pasa validación
  * @param {Array<string>} roles - Lista opcional de roles permitidos
  */
-export default function PrivateRoute({ children, roles }) {
-  const { token, user } = useAuth()
+export default function PrivateRoute({ children, roles = [] }) {
+  const { isAuthenticated, user } = useAuth()
 
-  // Si no hay token, redirigir a login
-  if (!token) {
-    return <Navigate to="/login" />
+  // Si no hay sesión activa, redirigir a login
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />
   }
 
-  // Si se especifican roles y el usuario no cumple, redirigir a dashboard
-  if (roles && roles.length > 0 && !roles.includes(user?.role)) {
-    return <Navigate to="/dashboard" />
+  // Si se especifican roles y el usuario no cumple
+  if (roles.length > 0 && !roles.includes(user?.role)) {
+    return <Navigate to="/403" replace /> // mejor UX que mandarlo al dashboard
   }
 
   // Si pasa validación, renderizar el hijo

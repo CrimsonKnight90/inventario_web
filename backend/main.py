@@ -27,6 +27,9 @@ from backend.routes import (
     config
 )
 
+# 🔹 Routers de auditoría
+from backend.auditoria.routes import auditoria_productos
+
 app = FastAPI(
     title="Inventario Web 🚀",
     version="0.3",
@@ -48,7 +51,7 @@ async def add_language_to_request(request: Request, call_next):
 # ------------------------------------------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # o ["*"] durante desarrollo
+    allow_origins=["http://localhost:5173","http://127.0.0.1:5173"],  # o ["*"] durante desarrollo
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -101,3 +104,6 @@ app.include_router(consumos.router)
 app.include_router(contrapartes.router)
 app.include_router(combinaciones.router)
 app.include_router(config.router, tags=["config"])
+
+# 🔹 Auditoría
+app.include_router(auditoria_productos.router, tags=["Auditoría Productos"])

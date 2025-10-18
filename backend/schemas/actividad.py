@@ -23,8 +23,8 @@ class ActividadBase(BaseModel):
         return v
 
     @field_validator("fechafin")
-    def validar_rango_fechas(cls, fin, values):
-        ini = values.get("fechaini")
+    def validar_rango_fechas(cls, fin, info):
+        ini = info.data.get("fechaini")   # 🔹 Pydantic v2 usa info.data
         if ini and fin and fin < ini:
             raise ValueError(get_message("invalid_rango_fechas"))
         return fin

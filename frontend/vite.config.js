@@ -17,7 +17,12 @@ export default defineConfig({
         target: 'http://localhost:8000',
         changeOrigin: true,
       },
-      // Si quieres también redirigir la API:
+      // Redirige todas las peticiones a /config hacia el backend
+      '/config': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      },
+      // Si quieres también redirigir la API completa:
       '/api': {
         target: 'http://localhost:8000',
         changeOrigin: true,

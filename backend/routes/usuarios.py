@@ -15,10 +15,11 @@ from backend.i18n.messages import get_message
 
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 
+
 # Listar todos los usuarios
 @router.get("/", response_model=List[UsuarioRead])
 def listar_usuarios(db: Session = Depends(get_db)):
-    usuarios = db.query(models.Usuario).all()
+    usuarios = db.query(models.Usuario).order_by(models.Usuario.id.asc()).all()
     return [
         UsuarioRead(
             id=u.id,
@@ -28,6 +29,7 @@ def listar_usuarios(db: Session = Depends(get_db)):
         )
         for u in usuarios
     ]
+
 
 # Crear un nuevo usuario
 @router.post("/", response_model=UsuarioRead, status_code=status.HTTP_201_CREATED)
@@ -57,6 +59,7 @@ def crear_usuario(payload: UsuarioCreate, db: Session = Depends(get_db), lang: s
         role=nuevo.role,
     )
 
+
 # Actualizar rol de un usuario
 @router.put("/{usuario_id}/rol", response_model=UsuarioRead)
 def actualizar_rol(usuario_id: int, payload: UsuarioUpdateRole, db: Session = Depends(get_db), lang: str = "es"):
@@ -77,6 +80,7 @@ def actualizar_rol(usuario_id: int, payload: UsuarioUpdateRole, db: Session = De
         email=usuario.email,
         role=usuario.role,
     )
+
 
 # Eliminar usuario
 @router.delete("/{usuario_id}", status_code=status.HTTP_204_NO_CONTENT)

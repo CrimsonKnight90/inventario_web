@@ -4,66 +4,67 @@
 # Autor: CrimsonKnight90
 # ============================================================
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, model_validator
 from backend.i18n.messages import get_message
+from backend.schemas.categoria import CategoriaRead
+from backend.schemas.um import UMRead
+from backend.schemas.moneda import MonedaRead
+
 
 class ProductoBase(BaseModel):
-    """Campos base compartidos por los esquemas de Producto."""
     nombre: str
     descripcion: str | None = None
-    precio: float
     categoria_id: int | None = None
-    stock: int | None = None  # opcional
+    um_id: str
+    moneda_id: str
+    existencia_min: float
+    existencia_max: float
 
-    # 🔹 Validaciones con mensajes traducibles
     @field_validator("nombre")
     def validar_nombre(cls, v):
         if not v or not v.strip():
             raise ValueError(get_message("invalid_producto_nombre"))
         return v
 
-    @field_validator("precio")
-    def validar_precio(cls, v):
-        if v is None or v <= 0:
-            raise ValueError(get_message("invalid_producto_precio"))
-        return v
+    @model_validator(mode="after")
+    def validar_existencias(cls, values):
+        min_val = values.existencia_min
+        max_val = values.existencia_max
+        if max_val is None or max_val <= 0:
+            raise ValueError(get_message("invalid_producto_existencia_max"))
+        if min_val is not None and max_val < min_val:
+            raise ValueError(get_message("invalid_producto_existencias"))
+        return values
 
-    @field_validator("stock")
-    def validar_stock(cls, v):
-        if v is not None and v < 0:
-            raise ValueError(get_message("invalid_producto_stock"))
-        return v
 
 class ProductoCreate(ProductoBase):
-    """Datos necesarios para crear un producto."""
     pass
 
+
 class ProductoUpdate(BaseModel):
-    """
-    Datos opcionales para actualizar un producto.
-    Todos los campos son opcionales para permitir actualizaciones parciales.
-    """
     nombre: str | None = None
     descripcion: str | None = None
-    precio: float | None = None
     categoria_id: int | None = None
-    stock: int | None = None
+    um_id: str | None = None
+    moneda_id: str | None = None
+    existencia_min: float | None = None
+    existencia_max: float | None = None
 
-    @field_validator("precio")
-    def validar_precio(cls, v):
-        if v is not None and v <= 0:
-            raise ValueError(get_message("invalid_producto_precio"))
-        return v
+    @model_validator(mode="after")
+    def validar_existencias(cls, values):
+        min_val = values.existencia_min
+        max_val = values.existencia_max
+        if max_val is not None and min_val is not None and max_val < min_val:
+            raise ValueError(get_message("invalid_producto_existencias"))
+        return values
 
-    @field_validator("stock")
-    def validar_stock(cls, v):
-        if v is not None and v < 0:
-            raise ValueError(get_message("invalid_producto_stock"))
-        return v
 
 class ProductoRead(ProductoBase):
-    """Datos devueltos al leer un producto."""
     id: int
+    activo: bool = True
+    categoria: CategoriaRead | None = None
+    um: UMRead | None = None
+    moneda: MonedaRead | None = None
 
     class Config:
         from_attributes = True

@@ -10,7 +10,8 @@ from backend.i18n.messages import get_message
 
 class CategoriaBase(BaseModel):
     nombre: str
-    descripcion: Optional[str] = None   # 🔹 coincide con el modelo
+    descripcion: Optional[str] = None
+    activo: Optional[bool] = True   # 🔹 Soft delete
 
     @field_validator("nombre")
     def validar_nombre(cls, v):
@@ -24,16 +25,11 @@ class CategoriaCreate(CategoriaBase):
 class CategoriaUpdate(BaseModel):
     nombre: Optional[str] = None
     descripcion: Optional[str] = None
-    empresa_id: Optional[int] = None
-
-    @field_validator("nombre")
-    def validar_nombre(cls, v):
-        if v is not None and not v.strip():
-            raise ValueError(get_message("invalid_categoria_nombre"))
-        return v
+    activo: Optional[bool] = None   # 🔹 Permitir reactivar/desactivar
 
 class CategoriaRead(CategoriaBase):
     id: int
+    tieneProductos: bool   # 🔹 Nuevo campo para advertencia en frontend
 
     class Config:
         from_attributes = True

@@ -13,6 +13,7 @@ class ConfigBase(BaseModel):
     primary_color: str
     secondary_color: str
     background_color: str
+    topbar_color: str   # 🔹 Nuevo
 
 class ConfigUpdate(BaseModel):
     app_name: Optional[str] = None
@@ -20,8 +21,10 @@ class ConfigUpdate(BaseModel):
     primary_color: Optional[str] = None
     secondary_color: Optional[str] = None
     background_color: Optional[str] = None
+    topbar_color: Optional[str] = None   # 🔹 Nuevo
 
 class ConfigOut(ConfigBase):
     id: int
     class Config:
         from_attributes = True
+

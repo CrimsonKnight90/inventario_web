@@ -21,3 +21,7 @@ from backend.models.combinacion import Combinacion
 
 # Branding / Configuración de la app
 from backend.models.config import Config
+
+# 🔹 Modelos de Auditoría
+from backend.auditoria.models.producto_auditoria import ProductoAuditoria
+# (en el futuro puedes añadir CategoriaAuditoria, UM_Auditoria, etc.)

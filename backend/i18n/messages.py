@@ -34,8 +34,8 @@ MESSAGES = {
 
         # schemas/producto.py
         "invalid_producto_nombre": "El nombre del producto no puede estar vacío",
-        "invalid_producto_precio": "El precio debe ser mayor que 0",
-        "invalid_producto_stock": "El stock no puede ser negativo",
+        "invalid_producto_existencias": "La existencia mínima no puede ser mayor que la máxima",
+        "invalid_producto_existencia_max": "La existencia máxima debe ser mayor que 0",
 
         # schemas/movimiento.py
         "invalid_movimiento_tipo": "El tipo de movimiento debe ser 'entrada' o 'salida'",
@@ -58,8 +58,8 @@ MESSAGES = {
 
         # schemas/combinacion.py
         "invalid_cc": "El centro de costo (cc) no puede estar vacío",
-        "invalid_cont": "La cuenta contable (cont) no puede estar vacío",
-        "invalid_cl": "La clasificación (cl) no puede estar vacío",
+        "invalid_cont": "La cuenta contable (cont) no puede estar vacía",
+        "invalid_cl": "La clasificación (cl) no puede estar vacía",
 
         # schemas/centro_costo.py
         "invalid_cuentacc": "La cuenta de costo no puede estar vacía",
@@ -97,11 +97,9 @@ MESSAGES = {
 
         # routes/productos.py
         "producto_existente": "Ya existe un producto con ese nombre en la empresa",
-        "producto_precio_stock_invalidos": "Precio y stock deben ser valores positivos",
         "producto_no_encontrado": "Producto no encontrado",
-        "producto_precio_invalido": "El precio debe ser positivo",
-        "producto_stock_invalido": "El stock debe ser positivo",
         "producto_eliminado_ok": "Producto eliminado correctamente",
+        "producto_existencias_invalidas": "Existencia mínima y máxima deben ser valores válidos",
 
         # routes/movimientos.py
         "stock_insuficiente_salida": "Stock insuficiente para realizar la salida",
@@ -158,7 +156,7 @@ MESSAGES = {
         "totales": "   Total USD: {total_usd}, Total MN: {total_mn}",
 
         # schemas/usuario.py
-        "invalid_role": "Invalid role. Only 'empleado' or 'admin' are allowed.",
+        "invalid_role": "Invalid role. Only 'employee' or 'admin' are allowed.",
 
         # schemas/um.py
         "invalid_factor": "Factor must be -1 or 1",
@@ -171,8 +169,8 @@ MESSAGES = {
 
         # schemas/producto.py
         "invalid_producto_nombre": "Product name cannot be empty",
-        "invalid_producto_precio": "Price must be greater than 0",
-        "invalid_producto_stock": "Stock cannot be negative",
+        "invalid_producto_existencias": "Minimum stock cannot be greater than maximum",
+        "invalid_producto_existencia_max": "Maximum stock must be greater than 0",
 
         # schemas/movimiento.py
         "invalid_movimiento_tipo": "Movement type must be 'entrada' or 'salida'",
@@ -234,11 +232,9 @@ MESSAGES = {
 
         # routes/productos.py
         "producto_existente": "A product with this name already exists in the company",
-        "producto_precio_stock_invalidos": "Price and stock must be positive values",
         "producto_no_encontrado": "Product not found",
-        "producto_precio_invalido": "Price must be positive",
-        "producto_stock_invalido": "Stock must be positive",
         "producto_eliminado_ok": "Product successfully deleted",
+        "producto_existencias_invalidas": "Minimum and maximum stock must be valid values",
 
         # routes/movimientos.py
         "stock_insuficiente_salida": "Insufficient stock to perform the output",
@@ -295,7 +291,7 @@ MESSAGES = {
         "totales": "   Total USD : {total_usd}, Total MN : {total_mn}",
 
         # schemas/usuario.py
-        "invalid_role": "Rôle invalide. Seuls 'empleado' ou 'admin' sont autorisés.",
+        "invalid_role": "Rôle invalide. Seuls 'employé' ou 'admin' sont autorisés.",
 
         # schemas/um.py
         "invalid_factor": "Le facteur doit être -1 ou 1",
@@ -308,8 +304,8 @@ MESSAGES = {
 
         # schemas/producto.py
         "invalid_producto_nombre": "Le nom du produit ne peut pas être vide",
-        "invalid_producto_precio": "Le prix doit être supérieur à 0",
-        "invalid_producto_stock": "Le stock ne peut pas être négatif",
+        "invalid_producto_existencias": "L'existence minimale ne peut pas être supérieure à l'existence maximale",
+        "invalid_producto_existencia_max": "L'existence maximale doit être supérieure à 0",
 
         # schemas/movimiento.py
         "invalid_movimiento_tipo": "Le type de mouvement doit être 'entrada' ou 'salida'",
@@ -342,7 +338,7 @@ MESSAGES = {
         # schemas/categoria.py
         "invalid_categoria_nombre": "Le nom de la catégorie ne peut pas être vide",
 
-        # schemas/actividad.py y actividad_cerrada.py
+        # schemas/actividad.py et actividad_cerrada.py
         "invalid_codact": "Le code de l'activité doit être un entier positif",
         "invalid_nomact": "Le nom de l'activité ne peut pas être vide",
         "invalid_rango_fechas": "La date de fin ne peut pas être antérieure à la date de début",
@@ -371,11 +367,9 @@ MESSAGES = {
 
         # routes/productos.py
         "producto_existente": "Un produit avec ce nom existe déjà dans l'entreprise",
-        "producto_precio_stock_invalidos": "Le prix et le stock doivent être des valeurs positives",
         "producto_no_encontrado": "Produit non trouvé",
-        "producto_precio_invalido": "Le prix doit être positif",
-        "producto_stock_invalido": "Le stock doit être positif",
         "producto_eliminado_ok": "Produit supprimé avec succès",
+        "producto_existencias_invalidas": "Les existences minimale et maximale doivent être des valeurs valides",
 
         # routes/movimientos.py
         "stock_insuficiente_salida": "Stock insuffisant pour effectuer la sortie",
@@ -445,8 +439,8 @@ MESSAGES = {
 
         # schemas/producto.py
         "invalid_producto_nombre": "Имя продукта не может быть пустым",
-        "invalid_producto_precio": "Цена должна быть больше 0",
-        "invalid_producto_stock": "Запас не может быть отрицательным",
+        "invalid_producto_existencias": "Минимальное количество не может быть больше максимального",
+        "invalid_producto_existencia_max": "Максимальное количество должно быть больше 0",
 
         # schemas/movimiento.py
         "invalid_movimiento_tipo": "Тип движения должен быть 'entrada' или 'salida'",
@@ -508,11 +502,9 @@ MESSAGES = {
 
         # routes/productos.py
         "producto_existente": "Продукт с таким названием уже существует в компании",
-        "producto_precio_stock_invalidos": "Цена и запас должны быть положительными значениями",
         "producto_no_encontrado": "Продукт не найден",
-        "producto_precio_invalido": "Цена должна быть положительной",
-        "producto_stock_invalido": "Запас должен быть положительным",
         "producto_eliminado_ok": "Продукт успешно удален",
+        "producto_existencias_invalidas": "Минимальное и максимальное количество должны быть допустимыми значениями",
 
         # routes/movimientos.py
         "stock_insuficiente_salida": "Недостаточно запаса для выполнения списания",
