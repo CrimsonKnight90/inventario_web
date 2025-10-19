@@ -19,40 +19,43 @@ from backend.auditoria.utils import registrar_auditoria
 
 router = APIRouter(prefix="/productos", tags=["Productos"])
 
+
 # Crear
 @router.post("/", response_model=ProductoRead, dependencies=[Depends(require_admin)])
 def crear_producto(
-    producto: ProductoCreate,
-    db: Session = Depends(get_db),
-    current_user: Usuario = Depends(get_current_user),
-    lang: str = "es"
+        producto: ProductoCreate,
+        db: Session = Depends(get_db),
+        current_user: Usuario = Depends(get_current_user),
+        lang: str = "es"
 ) -> Producto:
     existente = db.query(Producto).filter(Producto.nombre == producto.nombre).first()
     if existente:
-        raise HTTPException(400, detail=get_message("producto_existente", lang))
+        raise HTTPException(400,
+                            detail={"code": "producto_existente", "message": get_message("producto_existente", lang)})
 
     um = db.query(UM).filter(UM.um == producto.um_id, UM.activo == True).first()
     if not um:
-        raise HTTPException(400, detail=get_message("um_no_valida", lang))
+        raise HTTPException(400, detail={"code": "um_no_valida", "message": get_message("um_no_valida", lang)})
 
     moneda = db.query(Moneda).filter(Moneda.nombre == producto.moneda_id, Moneda.activo == True).first()
     if not moneda:
-        raise HTTPException(400, detail=get_message("moneda_no_valida", lang))
+        raise HTTPException(400, detail={"code": "moneda_no_valida", "message": get_message("moneda_no_valida", lang)})
 
     if producto.categoria_id:
         categoria = db.query(Categoria).filter(Categoria.id == producto.categoria_id, Categoria.activo == True).first()
         if not categoria:
-            raise HTTPException(400, detail=get_message("categoria_no_valida", lang))
+            raise HTTPException(400, detail={"code": "categoria_no_valida",
+                                             "message": get_message("categoria_no_valida", lang)})
 
     if producto.existencia_min < 0 or producto.existencia_max <= 0 or producto.existencia_max < producto.existencia_min:
-        raise HTTPException(400, detail=get_message("producto_existencias_invalidas", lang))
+        raise HTTPException(400, detail={"code": "producto_existencias_invalidas",
+                                         "message": get_message("producto_existencias_invalidas", lang)})
 
     nuevo = Producto(**producto.dict(), activo=True)
     db.add(nuevo)
     db.commit()
     db.refresh(nuevo)
 
-    # 🔹 Auditoría
     registrar_auditoria(
         db=db,
         producto_id=nuevo.id,
@@ -63,12 +66,13 @@ def crear_producto(
 
     return nuevo
 
+
 # Listar
 @router.get("/", response_model=list[ProductoRead])
 def listar_productos(
-    db: Session = Depends(get_db),
-    current_user: Usuario = Depends(get_current_user),
-    incluir_inactivos: bool = Query(False, description="Incluir productos inactivos")
+        db: Session = Depends(get_db),
+        current_user: Usuario = Depends(get_current_user),
+        incluir_inactivos: bool = Query(False, description="Incluir productos inactivos")
 ) -> list[Producto]:
     query = db.query(Producto).options(
         joinedload(Producto.categoria),
@@ -79,13 +83,14 @@ def listar_productos(
         query = query.filter(Producto.activo == True)
     return query.all()
 
+
 # Obtener uno
 @router.get("/{producto_id}", response_model=ProductoRead)
 def obtener_producto(
-    producto_id: int,
-    db: Session = Depends(get_db),
-    current_user: Usuario = Depends(get_current_user),
-    lang: str = "es"
+        producto_id: int,
+        db: Session = Depends(get_db),
+        current_user: Usuario = Depends(get_current_user),
+        lang: str = "es"
 ) -> Producto:
     producto = db.query(Producto).options(
         joinedload(Producto.categoria),
@@ -93,47 +98,54 @@ def obtener_producto(
         joinedload(Producto.moneda)
     ).filter(Producto.id == producto_id).first()
     if not producto:
-        raise HTTPException(404, detail=get_message("producto_no_encontrado", lang))
+        raise HTTPException(404, detail={"code": "producto_no_encontrado",
+                                         "message": get_message("producto_no_encontrado", lang)})
     return producto
+
 
 # Actualizar
 @router.put("/{producto_id}", response_model=ProductoRead, dependencies=[Depends(require_admin)])
 def actualizar_producto(
-    producto_id: int,
-    datos: ProductoUpdate,
-    db: Session = Depends(get_db),
-    current_user: Usuario = Depends(get_current_user),
-    lang: str = "es"
+        producto_id: int,
+        datos: ProductoUpdate,
+        db: Session = Depends(get_db),
+        current_user: Usuario = Depends(get_current_user),
+        lang: str = "es"
 ) -> Producto:
     producto = db.query(Producto).filter(Producto.id == producto_id).first()
     if not producto:
-        raise HTTPException(404, detail=get_message("producto_no_encontrado", lang))
+        raise HTTPException(404, detail={"code": "producto_no_encontrado",
+                                         "message": get_message("producto_no_encontrado", lang)})
 
     if datos.nombre and datos.nombre != producto.nombre:
         existente = db.query(Producto).filter(Producto.nombre == datos.nombre, Producto.id != producto_id).first()
         if existente:
-            raise HTTPException(400, detail=get_message("producto_existente", lang))
+            raise HTTPException(400, detail={"code": "producto_existente",
+                                             "message": get_message("producto_existente", lang)})
 
     if datos.um_id:
         um = db.query(UM).filter(UM.um == datos.um_id, UM.activo == True).first()
         if not um:
-            raise HTTPException(400, detail=get_message("um_no_valida", lang))
+            raise HTTPException(400, detail={"code": "um_no_valida", "message": get_message("um_no_valida", lang)})
 
     if datos.moneda_id:
         moneda = db.query(Moneda).filter(Moneda.nombre == datos.moneda_id, Moneda.activo == True).first()
         if not moneda:
-            raise HTTPException(400, detail=get_message("moneda_no_valida", lang))
+            raise HTTPException(400,
+                                detail={"code": "moneda_no_valida", "message": get_message("moneda_no_valida", lang)})
 
     if datos.categoria_id:
         categoria = db.query(Categoria).filter(Categoria.id == datos.categoria_id, Categoria.activo == True).first()
         if not categoria:
-            raise HTTPException(400, detail=get_message("categoria_no_valida", lang))
+            raise HTTPException(400, detail={"code": "categoria_no_valida",
+                                             "message": get_message("categoria_no_valida", lang)})
 
     nueva_min = datos.existencia_min if datos.existencia_min is not None else producto.existencia_min
     nueva_max = datos.existencia_max if datos.existencia_max is not None else producto.existencia_max
 
     if nueva_min < 0 or nueva_max <= 0 or nueva_max < nueva_min:
-        raise HTTPException(400, detail=get_message("producto_existencias_invalidas", lang))
+        raise HTTPException(400, detail={"code": "producto_existencias_invalidas",
+                                         "message": get_message("producto_existencias_invalidas", lang)})
 
     valores_anteriores = {
         "nombre": producto.nombre,
@@ -150,7 +162,6 @@ def actualizar_producto(
     db.commit()
     db.refresh(producto)
 
-    # 🔹 Auditoría
     registrar_auditoria(
         db=db,
         producto_id=producto.id,
@@ -162,24 +173,25 @@ def actualizar_producto(
 
     return producto
 
+
 # Desactivar
 @router.patch("/{producto_id}/desactivar", dependencies=[Depends(require_admin)])
 def desactivar_producto(
-    producto_id: int,
-    db: Session = Depends(get_db),
-    current_user: Usuario = Depends(get_current_user),
-    lang: str = "es"
+        producto_id: int,
+        db: Session = Depends(get_db),
+        current_user: Usuario = Depends(get_current_user),
+        lang: str = "es"
 ) -> dict:
     producto = db.query(Producto).filter(Producto.id == producto_id).first()
     if not producto:
-        raise HTTPException(404, detail=get_message("producto_no_encontrado", lang))
+        raise HTTPException(404, detail={"code": "producto_no_encontrado",
+                                         "message": get_message("producto_no_encontrado", lang)})
     if not producto.activo:
-        return {"detail": get_message("producto_ya_desactivado", lang)}
+        return {"code": "producto_ya_desactivado", "message": get_message("producto_ya_desactivado", lang)}
 
     producto.activo = False
     db.commit()
 
-    # 🔹 Auditoría
     registrar_auditoria(
         db=db,
         producto_id=producto.id,
@@ -189,28 +201,41 @@ def desactivar_producto(
         valores_nuevos={"activo": False}
     )
 
-    return {"detail": get_message("producto_desactivado_ok", lang)}
+    return {"code": "producto_desactivado_ok", "message": get_message("producto_desactivado_ok", lang)}
+
 
 # Reactivar
 @router.patch("/{producto_id}/reactivar", dependencies=[Depends(require_admin)])
 def reactivar_producto(
-    producto_id: int,
-    db: Session = Depends(get_db),
-    current_user: Usuario = Depends(get_current_user),
-    lang: str = "es"
+        producto_id: int,
+        db: Session = Depends(get_db),
+        current_user: Usuario = Depends(get_current_user),
+        lang: str = "es"
 ) -> dict:
     producto = db.query(Producto).filter(Producto.id == producto_id).first()
     if not producto:
-        raise HTTPException(404, detail=get_message("producto_no_encontrado", lang))
+        raise HTTPException(
+            404,
+            detail={"code": "producto_no_encontrado", "message": get_message("producto_no_encontrado", lang)}
+        )
     if producto.activo:
-        return {"detail": get_message("producto_ya_activo", lang)}
+        return {"code": "producto_ya_activo", "message": get_message("producto_ya_activo", lang)}
 
     if not producto.um.activo:
-        raise HTTPException(400, detail=get_message("um_inactiva", lang))
+        raise HTTPException(
+            400,
+            detail={"code": "um_inactiva", "message": get_message("um_inactiva", lang)}
+        )
     if not producto.moneda.activo:
-        raise HTTPException(400, detail=get_message("moneda_inactiva", lang))
+        raise HTTPException(
+            400,
+            detail={"code": "moneda_inactiva", "message": get_message("moneda_inactiva", lang)}
+        )
     if producto.categoria_id and not producto.categoria.activo:
-        raise HTTPException(400, detail=get_message("categoria_inactiva", lang))
+        raise HTTPException(
+            400,
+            detail={"code": "categoria_inactiva", "message": get_message("categoria_inactiva", lang)}
+        )
 
     producto.activo = True
     db.commit()
@@ -225,4 +250,23 @@ def reactivar_producto(
         valores_nuevos={"activo": True}
     )
 
-    return {"detail": get_message("producto_reactivado_ok", lang)}
+    return {"code": "producto_reactivado_ok", "message": get_message("producto_reactivado_ok", lang)}
+
+# Verificar existencia de producto por nombre
+@router.get("/check")
+def check_producto(
+    nombre: str = Query(..., description="Nombre del producto"),
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+    lang: str = "es"
+):
+    nombre = nombre.strip()
+    existente = db.query(Producto).filter(Producto.nombre == nombre).first()
+    if existente:
+        return {
+            "exists": True,
+            "field": "nombre",
+            "code": "producto_existente",
+            "message": get_message("producto_existente", lang)
+        }
+    return {"exists": False}

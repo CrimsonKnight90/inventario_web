@@ -24,4 +24,7 @@ from backend.models.config import Config
 
 # 🔹 Modelos de Auditoría
 from backend.auditoria.models.producto_auditoria import ProductoAuditoria
+from backend.auditoria.models.proveedor_auditoria import ProveedorAuditoria
+from backend.auditoria.models.centro_costo_auditoria import CentroCostoAuditoria
+
 # (en el futuro puedes añadir CategoriaAuditoria, UM_Auditoria, etc.)

@@ -14,16 +14,28 @@ import AppInput from "../components/AppInput"
 import AppButton from "../components/AppButton"
 import AppHeading from "../components/AppHeading"
 import Notification from "../components/Notification"
+import {useNotification} from "../hooks/useNotification"
+import { DEFAULT_BRANDING } from "../context/BrandingContext"
+
 
 export default function ConfigPage() {
     const {branding, updateBranding, uploadLogo} = useBranding()
     const [form, setForm] = useState(null)
-    const [notif, setNotif] = useState({message: "", type: "info"})
+    const {notif, notify, clear} = useNotification()
     const {t} = useTranslation()
 
     useEffect(() => {
         if (branding) setForm(branding)
     }, [branding])
+
+    // 🔹 Liberar URL temporal al desmontar o cambiar logo
+    useEffect(() => {
+        return () => {
+            if (form?.logo_url_preview) {
+                URL.revokeObjectURL(form.logo_url_preview)
+            }
+        }
+    }, [form?.logo_url_preview])
 
     if (!form) return <p>{t("config.loading", {defaultValue: "Cargando configuración..."})}</p>
 
@@ -54,54 +66,29 @@ export default function ConfigPage() {
             })
 
             setForm(updated)
-            setNotif({
-                message: t("config.updated", {defaultValue: "Configuración actualizada"}),
-                type: "success",
-            })
+            notify.success(t("config.updated", {defaultValue: "Configuración actualizada"}))
         } catch (err) {
-            setNotif({
-                message: err.message || t("config.error_update", {defaultValue: "Error al actualizar configuración"}),
-                type: "error",
-            })
+            notify.error(err.message || t("config.error_update", {defaultValue: "Error al actualizar configuración"}))
         }
     }
-
 
     const handleUpload = (file) => {
         try {
-            // Creamos una URL temporal para vista previa
             const previewUrl = URL.createObjectURL(file)
-
-            // Guardamos el archivo y la vista previa en el estado local
             setForm((prev) => ({
                 ...prev,
-                logo_file: file,          // archivo temporal (no subido aún)
-                logo_url_preview: previewUrl, // vista previa local
+                logo_file: file,
+                logo_url_preview: previewUrl,
             }))
-
-            setNotif({
-                message: t("config.logo_selected", {defaultValue: "Logo seleccionado, recuerda guardar cambios"}),
-                type: "info",
-            })
+            notify.info(t("config.logo_selected", {defaultValue: "Logo seleccionado, recuerda guardar cambios"}))
         } catch (err) {
-            setNotif({
-                message: err.message || t("config.error_logo", {defaultValue: "Error al seleccionar logo"}),
-                type: "error",
-            })
+            notify.error(err.message || t("config.error_logo", {defaultValue: "Error al seleccionar logo"}))
         }
     }
 
-
     const restoreDefaults = () => {
-        setForm({
-            ...form,
-            app_name: "Inventario Pro",
-            logo_url: "/uploads/logo.png",
-            primary_color: "#1E293B",
-            secondary_color: "#2563EB",
-            background_color: "#F9FAFB",
-            topbar_color: "#0F172A",
-        })
+        setForm({ ...form, ...DEFAULT_BRANDING })
+        notify.info(t("config.restored", { defaultValue: "Valores restaurados, recuerda guardar cambios" }))
     }
 
     return (
@@ -111,7 +98,6 @@ export default function ConfigPage() {
             </AppHeading>
 
             <AppSection>
-
                 <AppWideForm onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Nombre de la empresa */}
                     <div>
@@ -145,7 +131,6 @@ export default function ConfigPage() {
                         <label className="block mb-1">
                             {t("config.upload_logo", {defaultValue: "Subir logo"})}
                         </label>
-
                         <div className="flex items-center space-x-4">
                             <AppButton
                                 variant="secondary"
@@ -155,7 +140,6 @@ export default function ConfigPage() {
                             >
                                 {t("config.upload_logo_button", {defaultValue: "Seleccionar archivo"})}
                             </AppButton>
-
                             <input
                                 id="logoInput"
                                 type="file"
@@ -165,10 +149,9 @@ export default function ConfigPage() {
                                 }}
                                 className="hidden"
                             />
-
                             <span className="text-sm text-gray-600 truncate max-w-xs">
-      {form.logo_url || t("config.no_logo", {defaultValue: "Sin logo"})}
-    </span>
+                {form.logo_url || t("config.no_logo", {defaultValue: "Sin logo"})}
+              </span>
                         </div>
                     </div>
 
@@ -177,7 +160,7 @@ export default function ConfigPage() {
                         <div className="mt-4">
                             <img
                                 src={form.logo_url_preview || `${form.logo_url}?t=${Date.now()}`}
-                                alt="Logo actual"
+                                alt={t("config.logo_alt", {defaultValue: "Logo de la empresa"})}
                                 className="h-16 object-contain"
                             />
                         </div>
@@ -194,6 +177,7 @@ export default function ConfigPage() {
                                 name="primary_color"
                                 value={form.primary_color || "#1E293B"}
                                 onChange={handleChange}
+                                aria-label={t("config.primary_color", {defaultValue: "Color primario"})}
                                 className="h-10 w-16 cursor-pointer"
                             />
                         </div>
@@ -206,6 +190,7 @@ export default function ConfigPage() {
                                 name="secondary_color"
                                 value={form.secondary_color || "#3B82F6"}
                                 onChange={handleChange}
+                                aria-label={t("config.secondary_color", {defaultValue: "Color secundario"})}
                                 className="h-10 w-16 cursor-pointer"
                             />
                         </div>
@@ -218,6 +203,7 @@ export default function ConfigPage() {
                                 name="background_color"
                                 value={form.background_color || "#F8FAFC"}
                                 onChange={handleChange}
+                                aria-label={t("config.background_color", {defaultValue: "Color de fondo"})}
                                 className="h-10 w-16 cursor-pointer"
                             />
                         </div>
@@ -230,11 +216,11 @@ export default function ConfigPage() {
                                 name="topbar_color"
                                 value={form.topbar_color || "#0F172A"}
                                 onChange={handleChange}
+                                aria-label={t("config.topbar_color", {defaultValue: "Color del Topbar"})}
                                 className="h-10 w-16 cursor-pointer"
                             />
                         </div>
                     </div>
-
 
                     {/* Vista previa de layout */}
                     <div className="mt-8">
@@ -242,7 +228,6 @@ export default function ConfigPage() {
                             {t("config.layout_preview", {defaultValue: "Vista previa del layout"})}
                         </p>
                         <div className="border rounded-lg overflow-hidden shadow-md">
-                            {/* Topbar */}
                             <div
                                 className="h-10 flex items-center px-3 text-white text-sm font-semibold"
                                 style={{backgroundColor: form.topbar_color || "#0F172A"}}
@@ -257,6 +242,7 @@ export default function ConfigPage() {
                                 >
                                     {t("config.navbar_example", {defaultValue: "Navbar"})}
                                 </div>
+
                                 {/* Contenido */}
                                 <div
                                     className="flex-1 p-4 text-center text-gray-700 text-sm"
@@ -267,7 +253,6 @@ export default function ConfigPage() {
                             </div>
                         </div>
                     </div>
-
 
                     {/* Botones */}
                     <div className="flex space-x-4">
@@ -282,11 +267,7 @@ export default function ConfigPage() {
             </AppSection>
 
             {/* Notificación global */}
-            <Notification
-                message={notif.message}
-                type={notif.type}
-                onClose={() => setNotif({message: "", type: "info"})}
-            />
+            <Notification message={notif.message} type={notif.type} onClose={clear}/>
         </AppPageContainer>
     )
 }

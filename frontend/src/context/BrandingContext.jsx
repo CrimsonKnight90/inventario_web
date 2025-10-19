@@ -10,7 +10,7 @@ import { apiClient } from "../utils/apiClient"
 const BrandingContext = createContext()
 
 // 🎨 Colores por defecto (sobrios y profesionales)
-const DEFAULT_BRANDING = {
+export const DEFAULT_BRANDING = {
   app_name: "Inventario Pro",
   logo_url: "/uploads/logo.png",
   primary_color: "#1E293B",     // Navbar

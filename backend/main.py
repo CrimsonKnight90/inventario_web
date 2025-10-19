@@ -29,6 +29,9 @@ from backend.routes import (
 
 # 🔹 Routers de auditoría
 from backend.auditoria.routes import auditoria_productos
+from backend.auditoria.routes import auditoria_proveedores
+from backend.auditoria.routes import auditoria_centros_costo
+from backend.auditoria.routes import auditoria_contrapartes
 
 app = FastAPI(
     title="Inventario Web 🚀",
@@ -107,3 +110,6 @@ app.include_router(config.router, tags=["config"])
 
 # 🔹 Auditoría
 app.include_router(auditoria_productos.router, tags=["Auditoría Productos"])
+app.include_router(auditoria_proveedores.router, tags=["Auditoría Proveedores"])
+app.include_router(auditoria_centros_costo.router, tags=["Auditoría Centros de Costo"])
+app.include_router(auditoria_contrapartes.router, tags=["Auditoría Contrapartes"])

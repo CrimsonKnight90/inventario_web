@@ -12,8 +12,8 @@ from backend.models.usuario import Usuario
 from backend.security.auth import verify_token
 from backend.i18n.messages import get_message
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
-
+# 🔑 Ajustado para que coincida con el prefijo /api definido en main.py
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 
 def get_current_user(
         request: Request,
@@ -35,7 +35,6 @@ def get_current_user(
             detail=get_message("user_not_found", request.state.lang)
         )
     return user
-
 
 def require_admin(
         request: Request,

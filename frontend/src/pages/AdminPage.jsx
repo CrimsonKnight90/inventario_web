@@ -14,14 +14,22 @@ import AppForm from "../components/AppForm"
 import AppInput from "../components/AppInput"
 import AppSelect from "../components/AppSelect"
 import AppButton from "../components/AppButton"
-import AppTable from "../components/AppTable"
+import Notification from "../components/Notification"
+import { useNotification } from "../hooks/useNotification"
+import AppConfirmDialog from "../components/AppConfirmDialog"
+import CatalogoTable from "../components/CatalogoTable"
 
 export default function AdminPage() {
   const { t } = useTranslation()
 
   const [usuarios, setUsuarios] = useState([])
-  const [error, setError] = useState("")
-  const [mensaje, setMensaje] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  // 🔹 Notificación global
+  const { notif, notify, clear } = useNotification()
+
+  // 🔹 Confirmación de acciones
+  const [confirm, setConfirm] = useState({ open: false, action: null, payload: null })
 
   const [nuevoUsuario, setNuevoUsuario] = useState({
     nombre: "",
@@ -31,12 +39,14 @@ export default function AdminPage() {
   })
 
   const fetchData = async () => {
+    setLoading(true)
     try {
       const data = await apiClient.get("/usuarios/")
       setUsuarios(Array.isArray(data) ? data : data.results || [])
     } catch (err) {
-      console.error("❌ Error en fetchData:", err)
-      setError("❌ " + t("admin.error_load"))
+      notify.error(t("admin.error_load", { defaultValue: "Error al cargar usuarios" }))
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -55,58 +65,57 @@ export default function AdminPage() {
   const handleCrearUsuario = async (e) => {
     e.preventDefault()
     if (!emailRegex.test(nuevoUsuario.email)) {
-      setMensaje("❌ " + t("admin.invalid_email"))
+      notify.error(t("admin.invalid_email", { defaultValue: "Email inválido" }))
       return
     }
     if (!validarPassword(nuevoUsuario.password)) {
-      setMensaje("❌ " + t("admin.invalid_password"))
+      notify.error(t("admin.invalid_password", { defaultValue: "Contraseña inválida" }))
       return
     }
     try {
       await apiClient.post("/usuarios/", nuevoUsuario)
-      setMensaje(t("admin.user_created"))
+      notify.success(t("admin.user_created", { defaultValue: "Usuario creado correctamente" }))
       setNuevoUsuario({ nombre: "", email: "", password: "", role: "empleado" })
       fetchData()
     } catch (err) {
-      console.error("❌ Error creando usuario:", err)
-      setMensaje("❌ " + (err.message || t("admin.error_create_user")))
+      notify.error(err.message || t("admin.error_create_user", { defaultValue: "Error al crear usuario" }))
     }
   }
 
   const handleCambiarRol = async (id, nuevoRol) => {
     try {
       await apiClient.put(`/usuarios/${id}/rol`, { role: nuevoRol })
-      setMensaje(t("admin.role_updated"))
+      notify.success(t("admin.role_updated", { defaultValue: "Rol actualizado" }))
       fetchData()
     } catch (err) {
-      setMensaje("❌ " + (err.message || t("admin.error_change_role")))
+      notify.error(err.message || t("admin.error_change_role", { defaultValue: "Error al cambiar rol" }))
     }
   }
 
   const handleEliminarUsuario = async (id) => {
-    if (!window.confirm(t("admin.confirm_delete"))) return
     try {
       await apiClient.delete(`/usuarios/${id}`)
-      setMensaje(t("admin.user_deleted"))
+      notify.warning(t("admin.user_deleted", { defaultValue: "Usuario eliminado" }))
       fetchData()
     } catch (err) {
-      setMensaje("❌ " + (err.message || t("admin.error_delete_user")))
+      notify.error(err.message || t("admin.error_delete_user", { defaultValue: "Error al eliminar usuario" }))
     }
   }
 
   return (
     <AppPageContainer>
-      <AppHeading level={1}>🛠️ {t("admin.title")}</AppHeading>
+      {/* 🔹 Notificación global */}
+      <Notification message={notif.message} type={notif.type} onClose={clear} />
 
-      {error && <p className="text-red-600 mb-4">{error}</p>}
-      {mensaje && <p className="mb-4">{mensaje}</p>}
+      <AppHeading level={1}>🛠️ {t("admin.title", { defaultValue: "Administración" })}</AppHeading>
 
+      {/* Crear usuario */}
       <AppSection>
-        <AppHeading level={2}>➕ {t("admin.create_user")}</AppHeading>
+        <AppHeading level={2}>➕ {t("admin.create_user", { defaultValue: "Crear usuario" })}</AppHeading>
         <AppForm onSubmit={handleCrearUsuario} className="space-y-4">
           <AppInput
             type="text"
-            placeholder={t("admin.name")}
+            placeholder={t("admin.name", { defaultValue: "Nombre" })}
             value={nuevoUsuario.nombre}
             onChange={(e) => setNuevoUsuario({ ...nuevoUsuario, nombre: e.target.value })}
             required
@@ -122,7 +131,7 @@ export default function AdminPage() {
 
           <AppInput
             type="password"
-            placeholder={t("admin.password")}
+            placeholder={t("admin.password", { defaultValue: "Contraseña" })}
             value={nuevoUsuario.password}
             onChange={(e) => setNuevoUsuario({ ...nuevoUsuario, password: e.target.value })}
             required
@@ -132,60 +141,78 @@ export default function AdminPage() {
             value={nuevoUsuario.role}
             onChange={(e) => setNuevoUsuario({ ...nuevoUsuario, role: e.target.value })}
           >
-            <option value="empleado">{t("admin.role_employee")}</option>
-            <option value="admin">{t("admin.role_admin")}</option>
+            <option value="empleado">{t("admin.role_employee", { defaultValue: "Empleado" })}</option>
+            <option value="admin">{t("admin.role_admin", { defaultValue: "Administrador" })}</option>
           </AppSelect>
 
           <AppButton type="submit" variant="primary" size="md" className="w-full">
-            {t("admin.create_user_button")}
+            {t("admin.create_user_button", { defaultValue: "Crear usuario" })}
           </AppButton>
         </AppForm>
       </AppSection>
 
+      {/* Gestión de usuarios */}
       <AppSection>
-        <AppHeading level={2}>👥 {t("admin.user_management")}</AppHeading>
-        <AppTable
-          headers={["ID", t("admin.name"), "Email", t("admin.role"), t("admin.actions")]}
-        >
-          {Array.isArray(usuarios) &&
-            usuarios.map((u) => (
-              <tr key={u.id} className="hover:bg-gray-50">
-                <td className="px-4 py-2 border">{u.id}</td>
-                <td className="px-4 py-2 border">{u.nombre}</td>
-                <td className="px-4 py-2 border truncate max-w-[220px]">{u.email}</td>
-                <td className="px-4 py-2 border">{u.role}</td>
-                <td className="px-4 py-2 border">
-                  <div className="inline-flex flex-col sm:flex-row gap-2 justify-center items-center">
-                    <AppButton
-                      variant="success"
-                      size="sm"
-                      className="w-40"
-                      onClick={() =>
-                        handleCambiarRol(u.id, u.role === "admin" ? "empleado" : "admin")
-                      }
-                    >
-                      ♻️{t("admin.change_role_to", {
-                        role:
-                          u.role === "admin"
-                            ? t("admin.role_employee")
-                            : t("admin.role_admin"),
-                      })}
-                    </AppButton>
+        <AppHeading level={2}>👥 {t("admin.user_management", { defaultValue: "Gestión de usuarios" })}</AppHeading>
+        <CatalogoTable
+          data={usuarios}
+          loading={loading}
+          showEstado={false} // 🔹 no aplica estado activo/inactivo en usuarios
+          columns={[
+            { key: "id", label: "ID" },
+            { key: "nombre", label: t("admin.name", { defaultValue: "Nombre" }) },
+            { key: "email", label: "Email" },
+            { key: "role", label: t("admin.role", { defaultValue: "Rol" }) },
+          ]}
+          renderActions={(u) => (
+            <div className="inline-flex flex-col sm:flex-row gap-2 justify-center items-center">
+              <AppButton
+                variant="success"
+                size="sm"
+                className="w-40"
+                onClick={() =>
+                  handleCambiarRol(u.id, u.role === "admin" ? "empleado" : "admin")
+                }
+              >
+                ♻️ {t("admin.change_role_to", {
+                  role: u.role === "admin"
+                    ? t("admin.role_employee", { defaultValue: "Empleado" })
+                    : t("admin.role_admin", { defaultValue: "Administrador" }),
+                })}
+              </AppButton>
 
-                    <AppButton
-                      variant="danger"
-                      size="sm"
-                      className="w-40"
-                      onClick={() => handleEliminarUsuario(u.id)}
-                    >
-                      🗑️{t("admin.delete")}
-                    </AppButton>
-                  </div>
-                </td>
-              </tr>
-            ))}
-        </AppTable>
+              <AppButton
+                variant="danger"
+                size="sm"
+                className="w-40"
+                onClick={() => setConfirm({ open: true, action: "delete", payload: u })}
+              >
+                🗑️ {t("admin.delete", { defaultValue: "Eliminar" })}
+              </AppButton>
+            </div>
+          )}
+        />
       </AppSection>
+
+      {/* Confirmación de eliminación */}
+      <AppConfirmDialog
+        isOpen={confirm.open}
+        message={
+          confirm.action === "delete"
+            ? t("admin.confirm_delete_user", {
+                nombre: confirm.payload?.nombre,
+                defaultValue: `¿Seguro que deseas eliminar al usuario "${confirm.payload?.nombre}"?`,
+              })
+            : ""
+        }
+        onCancel={() => setConfirm({ open: false, action: null, payload: null })}
+        onConfirm={async () => {
+          if (confirm.action === "delete") {
+            await handleEliminarUsuario(confirm.payload.id)
+          }
+          setConfirm({ open: false, action: null, payload: null })
+        }}
+      />
     </AppPageContainer>
   )
 }

@@ -5,21 +5,27 @@
 // Autor: CrimsonKnight90
 // ============================================================
 
-import {Routes, Route, Navigate} from "react-router-dom"
+import { Routes, Route, Navigate, Outlet } from "react-router-dom"
 import LoginPage from "./pages/LoginPage"
 import Dashboard from "./pages/Dashboard"
-import PrivateRoute from "./components/PrivateRoute"
 import AdminPage from "./pages/AdminPage"
 import Layout from "./components/Layout"
-import CategoriasPage from "./pages/administracion/CategoriasPage"
-import ProductosPage from "./pages/administracion/ProductosPage"
-
-import CrearActividadPage from "./pages/operativo/CrearActividadPage"
-import CerrarActividadPage from "./pages/operativo/CerrarActividadPage"
+import PrivateRoute from "./components/PrivateRoute"
+import ErrorBoundaryWrapper from "./components/ErrorBoundaryWrapper"
 
 import ActividadesPage from "./pages/listados/ActividadesPage"
 import ActividadesCreadasPage from "./pages/listados/ActividadesCreadasPage"
 import ActividadesCerradasPage from "./pages/listados/ActividadesCerradasPage"
+import ProveedoresListPage from "./pages/listados/ProveedoresPage"
+
+import ProveedoresPage from "./pages/administracion/ProveedoresPage"
+import CategoriasPage from "./pages/administracion/CategoriasPage"
+import ProductosPage from "./pages/administracion/ProductosPage"
+import CentrosCostoPage from "./pages/administracion/CentrosCostoPage"
+import ContrapartesPage from "./pages/administracion/ContrapartesPage"
+
+import CrearActividadPage from "./pages/operativo/CrearActividadPage"
+import CerrarActividadPage from "./pages/operativo/CerrarActividadPage"
 
 import UMPage from "./pages/parametros/UMPage"
 import MonedasPage from "./pages/parametros/MonedasPage"
@@ -29,186 +35,74 @@ import ConfigPage from "./pages/ConfigPage"
 import ForbiddenPage from "./pages/ForbiddenPage"
 import NotFoundPage from "./pages/NotFoundPage"
 
-import ErrorBoundaryWrapper from "./components/ErrorBoundaryWrapper"
+// 🔹 Wrapper para no repetir Layout + ErrorBoundary + PrivateRoute
+function ProtectedLayout({ roles }) {
+  return (
+    <PrivateRoute roles={roles}>
+      <Layout>
+        <ErrorBoundaryWrapper>
+          <Outlet />
+        </ErrorBoundaryWrapper>
+      </Layout>
+    </PrivateRoute>
+  )
+}
 
 function App() {
-    return (
-        <Routes>
-            <Route path="/" element={<Navigate to="/login"/>}/>
-            <Route path="/login" element={<LoginPage/>}/>
+  return (
+    <Routes>
+      {/* Redirección inicial */}
+      <Route path="/" element={<Navigate to="/login" />} />
+      <Route path="/login" element={<LoginPage />} />
 
-            <Route
-                path="/admin"
-                element={
-                    <PrivateRoute roles={["admin"]}>
-                        <Layout>
-                            <ErrorBoundaryWrapper>
-                                <AdminPage/>
-                            </ErrorBoundaryWrapper>
-                        </Layout>
-                    </PrivateRoute>
-                }
-            />
+      {/* Dashboard */}
+      <Route element={<ProtectedLayout />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Route>
 
-            <Route
-                path="/config"
-                element={
-                    <PrivateRoute roles={["admin"]}>
-                        <Layout>
-                            <ErrorBoundaryWrapper>
-                                <ConfigPage/>
-                            </ErrorBoundaryWrapper>
-                        </Layout>
-                    </PrivateRoute>
-                }
-            />
+      {/* Admin y Config (solo admin) */}
+      <Route element={<ProtectedLayout roles={["admin"]} />}>
+        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/config" element={<ConfigPage />} />
+      </Route>
 
-            <Route
-                path="/dashboard"
-                element={
-                    <PrivateRoute>
-                        <Layout>
-                            <ErrorBoundaryWrapper>
-                                <Dashboard/>
-                            </ErrorBoundaryWrapper>
-                        </Layout>
-                    </PrivateRoute>
-                }
-            />
+      {/* Listados */}
+      <Route element={<ProtectedLayout />}>
+        <Route path="/listados/actividades" element={<ActividadesPage />} />
+        <Route path="/listados/actividades/creadas" element={<ActividadesCreadasPage />} />
+        <Route path="/listados/actividades/cerradas" element={<ActividadesCerradasPage />} />
+        <Route path="/listados/proveedores" element={<ProveedoresListPage />} />
+      </Route>
 
-            <Route
-                path="/categorias"
-                element={
-                    <PrivateRoute roles={["admin"]}>
-                        <Layout>
-                            <ErrorBoundaryWrapper>
-                                <CategoriasPage/>
-                            </ErrorBoundaryWrapper>
-                        </Layout>
-                    </PrivateRoute>
-                }
-            />
+      {/* Administración (solo admin excepto productos) */}
+      <Route element={<ProtectedLayout roles={["admin"]} />}>
+        <Route path="/proveedores" element={<ProveedoresPage />} />
+        <Route path="/categorias" element={<CategoriasPage />} />
+        <Route path="/centros-costo" element={<CentrosCostoPage />} />
+        <Route path="/contrapartes" element={<ContrapartesPage />} />
+      </Route>
+      <Route element={<ProtectedLayout />}>
+        <Route path="/productos" element={<ProductosPage />} />
+      </Route>
 
+      {/* Operativo */}
+      <Route element={<ProtectedLayout />}>
+        <Route path="/operativo/actividades/crear" element={<CrearActividadPage />} />
+        <Route path="/operativo/actividades/cerrar" element={<CerrarActividadPage />} />
+      </Route>
 
-            <Route
-                path="/productos"
-                element={
-                    <PrivateRoute>
-                        <Layout>
-                            <ErrorBoundaryWrapper>
-                                <ProductosPage/>
-                            </ErrorBoundaryWrapper>
-                        </Layout>
-                    </PrivateRoute>
-                }
-            />
+      {/* Parámetros (solo admin) */}
+      <Route element={<ProtectedLayout roles={["admin"]} />}>
+        <Route path="/parametros/um" element={<UMPage />} />
+        <Route path="/parametros/monedas" element={<MonedasPage />} />
+        <Route path="/parametros/tipos-documentos" element={<TiposDocumentosPage />} />
+      </Route>
 
-            <Route
-                path="/operativo/actividades/crear"
-                element={
-                    <PrivateRoute>
-                        <Layout>
-                            <ErrorBoundaryWrapper>
-                                <CrearActividadPage/>
-                            </ErrorBoundaryWrapper>
-                        </Layout>
-                    </PrivateRoute>
-                }
-            />
-            <Route
-                path="/operativo/actividades/cerrar"
-                element={
-                    <PrivateRoute>
-                        <Layout>
-                            <ErrorBoundaryWrapper>
-                                <CerrarActividadPage/>
-                            </ErrorBoundaryWrapper>
-                        </Layout>
-                    </PrivateRoute>
-                }
-            />
-
-            <Route
-                path="/listados/actividades"
-                element={
-                    <PrivateRoute>
-                        <Layout>
-                            <ErrorBoundaryWrapper>
-                                <ActividadesPage/>
-                            </ErrorBoundaryWrapper>
-                        </Layout>
-                    </PrivateRoute>
-                }
-            />
-            <Route
-                path="/listados/actividades/creadas"
-                element={
-                    <PrivateRoute>
-                        <Layout>
-                            <ErrorBoundaryWrapper>
-                                <ActividadesCreadasPage/>
-                            </ErrorBoundaryWrapper>
-                        </Layout>
-                    </PrivateRoute>
-                }
-            />
-            <Route
-                path="/listados/actividades/cerradas"
-                element={
-                    <PrivateRoute>
-                        <Layout>
-                            <ErrorBoundaryWrapper>
-                                <ActividadesCerradasPage/>
-                            </ErrorBoundaryWrapper>
-                        </Layout>
-                    </PrivateRoute>
-                }
-            />
-
-            <Route
-                path="/parametros/um"
-                element={
-                    <PrivateRoute roles={["admin"]}>
-                        <Layout>
-                            <ErrorBoundaryWrapper>
-                                <UMPage/>
-                            </ErrorBoundaryWrapper>
-                        </Layout>
-                    </PrivateRoute>
-                }
-            />
-            <Route
-                path="/parametros/monedas"
-                element={
-                    <PrivateRoute roles={["admin"]}>
-                        <Layout>
-                            <ErrorBoundaryWrapper>
-                                <MonedasPage/>
-                            </ErrorBoundaryWrapper>
-                        </Layout>
-                    </PrivateRoute>
-                }
-            />
-            <Route
-                path="/parametros/tipos-documentos"
-                element={
-                    <PrivateRoute roles={["admin"]}>
-                        <Layout>
-                            <ErrorBoundaryWrapper>
-                                <TiposDocumentosPage/>
-                            </ErrorBoundaryWrapper>
-                        </Layout>
-                    </PrivateRoute>
-                }
-            />
-
-            {/* ✅ Ruta para acceso prohibido */}
-            <Route path="/403" element={<ForbiddenPage/>}/>
-
-            {/* ✅ Ruta para páginas inexistentes */}
-            <Route path="*" element={<NotFoundPage/>}/>
-        </Routes>
-    )
+      {/* Errores */}
+      <Route path="/403" element={<ForbiddenPage />} />
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
+  )
 }
 
 export default App

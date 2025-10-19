@@ -11,12 +11,15 @@ import AppPageContainer from "../../components/AppPageContainer"
 import AppSection from "../../components/AppSection"
 import AppHeading from "../../components/AppHeading"
 import AppTable from "../../components/AppTable"
+import Notification from "../../components/Notification"
+import { useNotification } from "../../hooks/useNotification"
+import { getErrorDetail } from "../../utils/errorUtils"
 
 export default function ActividadesPage() {
   const { t } = useTranslation()
   const [actividades, setActividades] = useState([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
+  const { notif, notify, clear } = useNotification()
 
   useEffect(() => {
     const fetchActividades = async () => {
@@ -24,7 +27,7 @@ export default function ActividadesPage() {
         const data = await apiClient.get("/actividades")
         setActividades(Array.isArray(data) ? data : data.results || [])
       } catch (err) {
-        setError(t("actividades.load_error", { defaultValue: "Error al cargar actividades" }))
+        notify.error(getErrorDetail(err, t("actividades.load_error", { defaultValue: "Error al cargar actividades" })))
       } finally {
         setLoading(false)
       }
@@ -40,6 +43,8 @@ export default function ActividadesPage() {
 
   return (
     <AppPageContainer>
+      <Notification message={notif.message} type={notif.type} onClose={clear} />
+
       <AppHeading level={1}>
         📋 {t("actividades.list_title", { defaultValue: "Listado de Actividades" })}
       </AppHeading>
@@ -47,9 +52,8 @@ export default function ActividadesPage() {
       {loading && (
         <p className="mb-4">⏳ {t("actividades.loading", { defaultValue: "Cargando actividades..." })}</p>
       )}
-      {error && <p className="mb-4 text-red-600">{error}</p>}
 
-      {!loading && !error && (
+      {!loading && (
         <AppSection>
           <AppTable
             headers={[
@@ -62,10 +66,7 @@ export default function ActividadesPage() {
           >
             {actividades.length === 0 ? (
               <tr>
-                <td
-                  colSpan={5}
-                  className="text-center py-4 text-gray-500"
-                >
+                <td colSpan={5} className="text-center py-4 text-gray-500">
                   {t("actividades.no_records", { defaultValue: "No hay registros" })}
                 </td>
               </tr>

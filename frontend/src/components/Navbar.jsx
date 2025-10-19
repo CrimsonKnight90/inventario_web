@@ -16,7 +16,7 @@ export default function Navbar() {
 
     return (
         <aside
-            className="fixed top-15 left-0 h-screen w-64 text-white flex flex-col z-40"
+            className="fixed top-14 left-0 h-screen w-64 text-white flex flex-col z-40"
             style={{backgroundColor: branding?.primary_color || "#1E293B"}}
         >
             <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
@@ -25,32 +25,6 @@ export default function Navbar() {
                         <NavItem to="/dashboard">
                             📊 {t("nav.dashboard", {defaultValue: "Dashboard"})}
                         </NavItem>
-
-                        {/* 🔹 Sección Administracion */}
-                        <div className="mt-6">
-                            <p className="text-xs uppercase text-gray-400 mb-2">
-                                {t("nav.administracion", {defaultValue: "Administracion"})}
-                            </p>
-                            <NavItem to="/categorias">
-                                🗂️ {t("nav.categorias", {defaultValue: "Categorías"})}
-                            </NavItem>
-                            <NavItem to="/productos">
-                                📦 {t("nav.products", {defaultValue: "Productos"})}
-                            </NavItem>
-                        </div>
-
-                        {/* 🔹 Sección Operativo */}
-                        <div className="mt-6">
-                            <p className="text-xs uppercase text-gray-400 mb-2">
-                                {t("nav.operativo", {defaultValue: "Operativo"})}
-                            </p>
-                            <NavItem to="/operativo/actividades/crear">
-                                ➕ {t("nav.create_activity", {defaultValue: "Crear Actividad"})}
-                            </NavItem>
-                            <NavItem to="/operativo/actividades/cerrar">
-                                🔒 {t("nav.close_activity", {defaultValue: "Cerrar Actividad"})}
-                            </NavItem>
-                        </div>
 
                         {/* 🔹 Sección Listados */}
                         <div className="mt-6">
@@ -65,6 +39,46 @@ export default function Navbar() {
                             </NavItem>
                             <NavItem to="/listados/actividades/cerradas">
                                 🔒 {t("nav.closed_activities", {defaultValue: "Actividades Cerradas"})}
+                            </NavItem>
+                            <NavItem to="/listados/proveedores">
+                                🧑‍💼 {t("nav.proveedores", {defaultValue: "Proveedores"})}
+                            </NavItem>
+
+                        </div>
+
+                        {/* 🔹 Sección Administracion */}
+                        <div className="mt-6">
+                            <p className="text-xs uppercase text-gray-400 mb-2">
+                                {t("nav.administracion", {defaultValue: "Administracion"})}
+                            </p>
+                            <NavItem to="/proveedores">
+                                🧑‍💼 {t("proveedores.title", {defaultValue: "Proveedores"})}
+                            </NavItem>
+                            <NavItem to="/categorias">
+                                🗂️ {t("nav.categorias", {defaultValue: "Categorías"})}
+                            </NavItem>
+                            <NavItem to="/productos">
+                                📦 {t("nav.products", {defaultValue: "Productos"})}
+                            </NavItem>
+                            <NavItem to="/centros-costo">
+                                🏢 {t("nav.centros_costo", {defaultValue: "Centros de Costo"})}
+                            </NavItem>
+                            <NavItem to="/contrapartes">
+                                🔄 {t("nav.contrapartes", {defaultValue: "Contrapartes"})}
+                            </NavItem>
+
+                        </div>
+
+                        {/* 🔹 Sección Operativo */}
+                        <div className="mt-6">
+                            <p className="text-xs uppercase text-gray-400 mb-2">
+                                {t("nav.operativo", {defaultValue: "Operativo"})}
+                            </p>
+                            <NavItem to="/operativo/actividades/crear">
+                                ➕ {t("nav.create_activity", {defaultValue: "Crear Actividad"})}
+                            </NavItem>
+                            <NavItem to="/operativo/actividades/cerrar">
+                                🔒 {t("nav.close_activity", {defaultValue: "Cerrar Actividad"})}
                             </NavItem>
                         </div>
 

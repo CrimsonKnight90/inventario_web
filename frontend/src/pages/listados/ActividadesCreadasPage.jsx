@@ -11,12 +11,15 @@ import AppPageContainer from "../../components/AppPageContainer"
 import AppSection from "../../components/AppSection"
 import AppHeading from "../../components/AppHeading"
 import AppTable from "../../components/AppTable"
+import Notification from "../../components/Notification"
+import { useNotification } from "../../hooks/useNotification"
+import { getErrorDetail } from "../../utils/errorUtils"
 
 export default function ActividadesCreadasPage() {
   const { t } = useTranslation()
   const [actividades, setActividades] = useState([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
+  const { notif, notify, clear } = useNotification()
 
   useEffect(() => {
     const fetchActividades = async () => {
@@ -24,11 +27,7 @@ export default function ActividadesCreadasPage() {
         const data = await apiClient.get("/actividades/creadas")
         setActividades(Array.isArray(data) ? data : data.results || [])
       } catch (err) {
-        setError(
-          t("actividades.error_load_created", {
-            defaultValue: "Error al cargar actividades creadas",
-          })
-        )
+        notify.error(getErrorDetail(err, t("actividades.error_load_created", { defaultValue: "Error al cargar actividades creadas" })))
       } finally {
         setLoading(false)
       }
@@ -38,21 +37,17 @@ export default function ActividadesCreadasPage() {
 
   return (
     <AppPageContainer>
+      <Notification message={notif.message} type={notif.type} onClose={clear} />
+
       <AppHeading level={1}>
         ✅ {t("actividades.created_title", { defaultValue: "Actividades Creadas" })}
       </AppHeading>
 
       {loading && (
-        <p className="mb-4">
-          ⏳{" "}
-          {t("actividades.loading_created", {
-            defaultValue: "Cargando actividades creadas...",
-          })}
-        </p>
+        <p className="mb-4">⏳ {t("actividades.loading_created", { defaultValue: "Cargando actividades creadas..." })}</p>
       )}
-      {error && <p className="mb-4 text-red-600">{error}</p>}
 
-      {!loading && !error && (
+      {!loading && (
         <AppSection>
           <AppTable
             headers={[

@@ -16,45 +16,49 @@ import AppWideForm from "../../components/AppWideForm"
 import AppInput from "../../components/AppInput"
 import AppSelect from "../../components/AppSelect"
 import AppButton from "../../components/AppButton"
+import {useNotification} from "../../hooks/useNotification"
+import {getErrorDetail} from "../../utils/errorUtils"
+import AppConfirmDialog from "../../components/AppConfirmDialog"
 
 export default function TiposDocumentosPage() {
-    const {data: tipos, create, activate, deactivate} = useCatalogo("/tipos-documentos")
     const {t} = useTranslation()
     const [form, setForm] = useState({clave: "", nombre: "", factor: 1})
-    const [mensaje, setMensaje] = useState("")
-    const [error, setError] = useState("")
+
+    // 🔹 Instancia única de notificación
+    const {notif, notify, clear} = useNotification()
+
+    // 🔹 Pasamos notify al hook para unificar notificaciones
+    const {data: tipos, create, activate, deactivate, loading} = useCatalogo("/tipos-documentos", {notify})
+
+    const [confirm, setConfirm] = useState({open: false, action: null, payload: null})
 
     const handleSubmit = async (e) => {
         e.preventDefault()
         try {
+            // Validación extra de clave (ejemplo: solo mayúsculas, 2-5 caracteres)
+            if (!/^[A-Z]{2,5}$/.test(form.clave)) {
+                notify.error(t("tipos_doc.invalid_key", {defaultValue: "La clave debe ser 2-5 letras mayúsculas"}))
+                return
+            }
+
             await create(form)
-            setMensaje(t("tipos_doc.created_success", {defaultValue: "Tipo de documento creado correctamente"}))
+            notify.success(t("tipos_doc.created_success", {defaultValue: "Tipo de documento creado correctamente"}))
             setForm({clave: "", nombre: "", factor: 1})
         } catch (err) {
-            setError("❌ " + (err.message || t("tipos_doc.error_create", {defaultValue: "Error al crear tipo de documento"})))
+            notify.error(getErrorDetail(err, t("tipos_doc.error_create", {defaultValue: "Error al crear tipo de documento"})))
         }
     }
 
     return (
         <AppPageContainer>
             {/* Notificación global */}
-            <Notification
-                message={mensaje || error}
-                type={error ? "error" : "success"}
-                onClose={() => {
-                    setMensaje("")
-                    setError("")
-                }}
-            />
+            <Notification message={notif.message} type={notif.type} onClose={clear}/>
 
             <AppHeading level={1}>📑 {t("tipos_doc.title", {defaultValue: "Tipos de Documento"})}</AppHeading>
 
             {/* Formulario */}
             <AppSection>
-                <AppWideForm
-                    onSubmit={handleSubmit}
-                    className="grid grid-cols-1 md:grid-cols-6 gap-4"
-                >
+                <AppWideForm onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-6 gap-4">
                     {/* Clave (1 col) */}
                     <div className="md:col-span-1">
                         <label className="block mb-1 text-sm text-gray-600">
@@ -64,7 +68,7 @@ export default function TiposDocumentosPage() {
                             type="text"
                             placeholder={t("tipos_doc.key_placeholder", {defaultValue: "Ej: FACT"})}
                             value={form.clave}
-                            onChange={(e) => setForm({...form, clave: e.target.value})}
+                            onChange={(e) => setForm({...form, clave: e.target.value.toUpperCase()})}
                             required
                         />
                     </div>
@@ -97,29 +101,55 @@ export default function TiposDocumentosPage() {
                         </AppSelect>
                     </div>
 
-                    {/* Botón (2 col, al lado de Factor) */}
+                    {/* Botón (1 col) */}
                     <div className="md:col-span-1 flex items-end">
                         <AppButton type="submit" variant="primary" className="w-full">
                             {t("tipos_doc.create_button", {defaultValue: "Crear"})}
                         </AppButton>
                     </div>
                 </AppWideForm>
-
             </AppSection>
 
             {/* Tabla genérica */}
             <AppSection>
                 <CatalogoTable
                     data={tipos}
+                    loading={loading}
                     columns={[
                         {key: "clave", label: t("tipos_doc.key", {defaultValue: "Clave"})},
                         {key: "nombre", label: t("tipos_doc.name", {defaultValue: "Nombre"})},
                         {key: "factor", label: t("tipos_doc.factor", {defaultValue: "Factor"})},
                     ]}
-                    onActivate={(tipo) => activate(tipo.clave)}
-                    onDeactivate={(tipo) => deactivate(tipo.clave)}
+                    onActivate={(tipo) => setConfirm({open: true, action: "activate", payload: tipo.clave})}
+                    onDeactivate={(tipo) => setConfirm({open: true, action: "deactivate", payload: tipo.clave})}
                 />
             </AppSection>
+
+            {/* Confirmación de acciones */}
+            <AppConfirmDialog
+                isOpen={confirm.open}
+                message={
+                    confirm.action === "deactivate"
+                        ? t("catalogo.confirm_deactivate", {
+                            id: confirm.payload,
+                            defaultValue: `¿Desactivar el tipo de documento "${confirm.payload}"?`,
+                        })
+                        : t("catalogo.confirm_activate", {
+                            id: confirm.payload,
+                            defaultValue: `¿Reactivar el tipo de documento "${confirm.payload}"?`,
+                        })
+                }
+                onCancel={() => setConfirm({open: false, action: null, payload: null})}
+                onConfirm={async () => {
+                    if (confirm.action === "deactivate") {
+                        await deactivate(confirm.payload)
+                    } else if (confirm.action === "activate") {
+                        await activate(confirm.payload)
+                    }
+                    setConfirm({open: false, action: null, payload: null})
+                }}
+            />
+
         </AppPageContainer>
     )
 }

@@ -11,18 +11,24 @@ import AppPageContainer from "../../components/AppPageContainer"
 import AppSection from "../../components/AppSection"
 import AppHeading from "../../components/AppHeading"
 import AppButton from "../../components/AppButton"
+import Notification from "../../components/Notification"
+import { useNotification } from "../../hooks/useNotification"
+import { getErrorDetail } from "../../utils/errorUtils"
+import AppConfirmDialog from "../../components/AppConfirmDialog"
 
 export default function CerrarActividadPage() {
   const { t } = useTranslation()
   const [actividades, setActividades] = useState([])
-  const [mensaje, setMensaje] = useState("")
-  const [error, setError] = useState("")
+  const { notif, notify, clear } = useNotification()
+  const [confirm, setConfirm] = useState({ open: false, payload: null })
 
   useEffect(() => {
     apiClient
       .get("/actividades/")
       .then((data) => setActividades(data.filter((a) => !a.actcerrada)))
-      .catch(() => setError("❌ " + t("actividades.load_error", { defaultValue: "Error al cargar actividades" })))
+      .catch((err) =>
+        notify.error(getErrorDetail(err, t("actividades.load_error", { defaultValue: "Error al cargar actividades" })))
+      )
   }, [t])
 
   const cerrarActividad = async (actividad) => {
@@ -30,19 +36,18 @@ export default function CerrarActividadPage() {
       await apiClient.post(`/actividades/${actividad.codact}/cerrar`, {
         observaciones: "Cerrada desde frontend",
       })
-      setMensaje(t("actividades.close_success", { defaultValue: "Actividad cerrada correctamente" }))
+      notify.success(t("actividades.close_success", { defaultValue: "Actividad cerrada correctamente" }))
       setActividades((prev) => prev.filter((a) => a.codact !== actividad.codact))
     } catch (err) {
-      setError("❌ " + (err.message || t("actividades.error_close", { defaultValue: "Error al cerrar actividad" })))
+      notify.error(getErrorDetail(err, t("actividades.error_close", { defaultValue: "Error al cerrar actividad" })))
     }
   }
 
   return (
     <AppPageContainer>
-      <AppHeading level={1}>🔒 {t("actividades.close_title", { defaultValue: "Cerrar actividades" })}</AppHeading>
+      <Notification message={notif.message} type={notif.type} onClose={clear} />
 
-      {mensaje && <p className="mb-4 text-green-700">{mensaje}</p>}
-      {error && <p className="mb-4 text-red-600">{error}</p>}
+      <AppHeading level={1}>🔒 {t("actividades.close_title", { defaultValue: "Cerrar actividades" })}</AppHeading>
 
       <AppSection>
         {actividades.length === 0 ? (
@@ -60,7 +65,7 @@ export default function CerrarActividadPage() {
                 <AppButton
                   variant="danger"
                   size="sm"
-                  onClick={() => cerrarActividad(a)}
+                  onClick={() => setConfirm({ open: true, payload: a })}
                 >
                   {t("actividades.close_button", { defaultValue: "Cerrar" })}
                 </AppButton>
@@ -69,6 +74,16 @@ export default function CerrarActividadPage() {
           </ul>
         )}
       </AppSection>
+
+      <AppConfirmDialog
+        isOpen={confirm.open}
+        message={t("actividades.confirm_close", { defaultValue: "¿Cerrar esta actividad?" })}
+        onCancel={() => setConfirm({ open: false, payload: null })}
+        onConfirm={() => {
+          cerrarActividad(confirm.payload)
+          setConfirm({ open: false, payload: null })
+        }}
+      />
     </AppPageContainer>
   )
 }

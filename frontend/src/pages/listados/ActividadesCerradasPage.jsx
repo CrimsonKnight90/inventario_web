@@ -11,12 +11,15 @@ import AppPageContainer from "../../components/AppPageContainer"
 import AppSection from "../../components/AppSection"
 import AppHeading from "../../components/AppHeading"
 import AppTable from "../../components/AppTable"
+import Notification from "../../components/Notification"
+import { useNotification } from "../../hooks/useNotification"
+import { getErrorDetail } from "../../utils/errorUtils"
 
 export default function ActividadesCerradasPage() {
   const { t } = useTranslation()
   const [actividades, setActividades] = useState([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
+  const { notif, notify, clear } = useNotification()
 
   useEffect(() => {
     const fetchActividades = async () => {
@@ -24,11 +27,7 @@ export default function ActividadesCerradasPage() {
         const data = await apiClient.get("/actividades/cerradas")
         setActividades(Array.isArray(data) ? data : data.results || [])
       } catch (err) {
-        setError(
-          t("actividades.error_load_closed", {
-            defaultValue: "Error al cargar actividades cerradas",
-          })
-        )
+        notify.error(getErrorDetail(err, t("actividades.error_load_closed", { defaultValue: "Error al cargar actividades cerradas" })))
       } finally {
         setLoading(false)
       }
@@ -44,21 +43,17 @@ export default function ActividadesCerradasPage() {
 
   return (
     <AppPageContainer>
+      <Notification message={notif.message} type={notif.type} onClose={clear} />
+
       <AppHeading level={1}>
         🔒 {t("actividades.closed_title", { defaultValue: "Actividades Cerradas" })}
       </AppHeading>
 
       {loading && (
-        <p className="mb-4">
-          ⏳{" "}
-          {t("actividades.loading_closed", {
-            defaultValue: "Cargando actividades cerradas...",
-          })}
-        </p>
+        <p className="mb-4">⏳ {t("actividades.loading_closed", { defaultValue: "Cargando actividades cerradas..." })}</p>
       )}
-      {error && <p className="mb-4 text-red-600">{error}</p>}
 
-      {!loading && !error && (
+      {!loading && (
         <AppSection>
           <AppTable
             headers={[

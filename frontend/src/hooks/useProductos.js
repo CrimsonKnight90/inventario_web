@@ -1,16 +1,20 @@
-// frontend/src/hooks/useProductos.js
+// ============================================================
+// Archivo: frontend/src/hooks/useProductos.js
+// Descripción: Hook especializado para CRUD de Productos con i18n y notificaciones
+// Autor: CrimsonKnight90
+// ============================================================
+
 import { useState, useEffect } from "react"
 import { apiClient } from "../utils/apiClient"
 import { useNotification } from "./useNotification"
 import { useTranslation } from "react-i18next"
+import { getErrorDetail } from "../utils/errorUtils"
 
-const getErrorDetail = (err, fallback) => {
-  return err.response?.data?.detail || err.message || fallback
-}
-
-export function useProductos({ incluirInactivos = false } = {}) {
-  const { notify } = useNotification()
+export function useProductos({ incluirInactivos = false, notify } = {}) {
+  const internalNotify = useNotification().notify
+  const notifyFn = notify || internalNotify
   const { t } = useTranslation()
+
   const [productos, setProductos] = useState([])
   const [loading, setLoading] = useState(false)
 
@@ -20,7 +24,7 @@ export function useProductos({ incluirInactivos = false } = {}) {
       const data = await apiClient.get(`/productos?incluir_inactivos=${incluirInactivos}`)
       setProductos(data)
     } catch (err) {
-      notify.error(getErrorDetail(err, t("productos.error_load", { defaultValue: "Error al cargar productos" })))
+      notifyFn.error(getErrorDetail(err, t("productos.error_load", { defaultValue: "Error al cargar productos" })))
     } finally {
       setLoading(false)
     }
@@ -31,40 +35,62 @@ export function useProductos({ incluirInactivos = false } = {}) {
   const create = async (payload) => {
     try {
       await apiClient.post("/productos/", payload)
-      notify.success(t("producto.created_ok", { defaultValue: "Producto creado correctamente" }))
+      notifyFn.success(t("producto.created_ok", { defaultValue: "Producto creado correctamente" }))
       fetchAll()
     } catch (err) {
-      notify.error(getErrorDetail(err, t("producto.error_save", { defaultValue: "Error al crear producto" })))
+      let detail
+      try {
+        detail = JSON.parse(err.message.replace(/^Error HTTP \d+: /, ""))
+      } catch {
+        detail = null
+      }
+      if (detail?.code === "producto_existente") {
+        notifyFn.error(detail.message || t("producto.duplicate", { defaultValue: "Ya existe un producto con ese nombre" }))
+      } else {
+        notifyFn.error(getErrorDetail(err, t("producto.error_save", { defaultValue: "Error al crear producto" })))
+      }
+      throw err
     }
   }
 
   const update = async (id, payload) => {
     try {
       await apiClient.put(`/productos/${id}`, payload)
-      notify.success(t("producto.updated_ok", { defaultValue: "Producto actualizado correctamente" }))
+      notifyFn.success(t("producto.updated_ok", { defaultValue: "Producto actualizado correctamente" }))
       fetchAll()
     } catch (err) {
-      notify.error(getErrorDetail(err, t("producto.error_update", { defaultValue: "Error al actualizar producto" })))
+      let detail
+      try {
+        detail = JSON.parse(err.message.replace(/^Error HTTP \d+: /, ""))
+      } catch {
+        detail = null
+      }
+      if (detail?.code === "producto_existente") {
+        notifyFn.error(detail.message || t("producto.duplicate", { defaultValue: "Ya existe un producto con ese nombre" }))
+      } else {
+        notifyFn.error(getErrorDetail(err, t("producto.error_update", { defaultValue: "Error al actualizar producto" })))
+      }
+      throw err
     }
   }
 
   const deactivate = async (id) => {
     try {
       await apiClient.patch(`/productos/${id}/desactivar`)
-      notify.warning(t("producto.deactivated_ok", { defaultValue: "Producto desactivado" }))
+      notifyFn.warning(t("producto.deactivated_ok", { defaultValue: "Producto desactivado" }))
       fetchAll()
     } catch (err) {
-      notify.error(getErrorDetail(err, t("producto.error_deactivate", { defaultValue: "Error al desactivar producto" })))
+      notifyFn.error(getErrorDetail(err, t("producto.error_deactivate", { defaultValue: "Error al desactivar producto" })))
     }
   }
 
   const activate = async (id) => {
     try {
       await apiClient.patch(`/productos/${id}/reactivar`)
-      notify.success(t("producto.reactivated_ok", { defaultValue: "Producto reactivado" }))
+      notifyFn.success(t("producto.reactivated_ok", { defaultValue: "Producto reactivado" }))
       fetchAll()
     } catch (err) {
-      notify.error(getErrorDetail(err, t("producto.error_activate", { defaultValue: "Error al reactivar producto" })))
+      notifyFn.error(getErrorDetail(err, t("producto.error_activate", { defaultValue: "Error al reactivar producto" })))
     }
   }
 

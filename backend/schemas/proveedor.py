@@ -1,6 +1,6 @@
 # ============================================================
 # Archivo: backend/schemas/proveedor.py
-# Descripción: Schemas Pydantic para Proveedores
+# Descripción: Schemas Pydantic para Proveedores con validaciones e i18n
 # Autor: CrimsonKnight90
 # ============================================================
 
@@ -10,7 +10,6 @@ from backend.i18n.messages import get_message
 class ProveedorBase(BaseModel):
     nombre: str
 
-    # 🔹 Validación con mensajes traducibles
     @field_validator("nombre")
     def validar_nombre(cls, v):
         if not v or not v.strip():
@@ -21,8 +20,18 @@ class ProveedorCreate(ProveedorBase):
     """Datos necesarios para crear un proveedor."""
     pass
 
+class ProveedorUpdate(BaseModel):
+    nombre: str | None = None
+
+    @field_validator("nombre")
+    def validar_nombre(cls, v):
+        if v is not None and not v.strip():
+            raise ValueError(get_message("invalid_proveedor_nombre"))
+        return v
+
 class ProveedorRead(ProveedorBase):
     id: int
+    activo: bool = True
 
     class Config:
         from_attributes = True

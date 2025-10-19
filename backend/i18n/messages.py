@@ -94,12 +94,25 @@ MESSAGES = {
 
         # routes/proveedores.py
         "proveedor_no_encontrado": "Proveedor no encontrado",
+        "proveedor_existente": "Ya existe un proveedor con ese nombre",
+        "proveedor_ya_desactivado": "El proveedor ya estaba desactivado",
+        "proveedor_desactivado_ok": "Proveedor desactivado correctamente",
+        "proveedor_ya_activo": "El proveedor ya está activo",
+        "proveedor_reactivado_ok": "Proveedor reactivado correctamente",
 
         # routes/productos.py
         "producto_existente": "Ya existe un producto con ese nombre en la empresa",
         "producto_no_encontrado": "Producto no encontrado",
         "producto_eliminado_ok": "Producto eliminado correctamente",
         "producto_existencias_invalidas": "Existencia mínima y máxima deben ser valores válidos",
+
+        # routes/centros_costo.py
+        "centro_costo_existente": "Ya existe un centro de costo con esa cuenta",
+        "centro_costo_no_encontrado": "Centro de costo no encontrado",
+        "centro_costo_ya_desactivado": "El centro de costo ya estaba desactivado",
+        "centro_costo_desactivado_ok": "Centro de costo desactivado correctamente",
+        "centro_costo_ya_activo": "El centro de costo ya está activo",
+        "centro_costo_reactivado_ok": "Centro de costo reactivado correctamente",
 
         # routes/movimientos.py
         "stock_insuficiente_salida": "Stock insuficiente para realizar la salida",
@@ -172,6 +185,14 @@ MESSAGES = {
         "invalid_producto_existencias": "Minimum stock cannot be greater than maximum",
         "invalid_producto_existencia_max": "Maximum stock must be greater than 0",
 
+        # routes/centros_costo.py
+        "centro_costo_existente": "A cost center with this account or name already exists",
+        "centro_costo_no_encontrado": "Cost center not found",
+        "centro_costo_ya_desactivado": "The cost center was already deactivated",
+        "centro_costo_desactivado_ok": "Cost center successfully deactivated",
+        "centro_costo_ya_activo": "The cost center is already active",
+        "centro_costo_reactivado_ok": "Cost center successfully reactivated",
+
         # schemas/movimiento.py
         "invalid_movimiento_tipo": "Movement type must be 'entrada' or 'salida'",
         "invalid_movimiento_cantidad": "Quantity must be greater than 0",
@@ -229,6 +250,11 @@ MESSAGES = {
 
         # routes/proveedores.py
         "proveedor_no_encontrado": "Supplier not found",
+        "proveedor_existente": "A supplier with this name already exists",
+        "proveedor_ya_desactivado": "Supplier was already deactivated",
+        "proveedor_desactivado_ok": "Supplier successfully deactivated",
+        "proveedor_ya_activo": "Supplier is already active",
+        "proveedor_reactivado_ok": "Supplier successfully reactivated",
 
         # routes/productos.py
         "producto_existente": "A product with this name already exists in the company",
@@ -307,6 +333,14 @@ MESSAGES = {
         "invalid_producto_existencias": "L'existence minimale ne peut pas être supérieure à l'existence maximale",
         "invalid_producto_existencia_max": "L'existence maximale doit être supérieure à 0",
 
+        # routes/centros_costo.py
+        "centro_costo_existente": "Un centre de coût avec ce compte ou ce nom existe déjà",
+        "centro_costo_no_encontrado": "Centre de coût non trouvé",
+        "centro_costo_ya_desactivado": "Le centre de coût était déjà désactivé",
+        "centro_costo_desactivado_ok": "Centre de coût désactivé avec succès",
+        "centro_costo_ya_activo": "Le centre de coût est déjà actif",
+        "centro_costo_reactivado_ok": "Centre de coût réactivé avec succès",
+
         # schemas/movimiento.py
         "invalid_movimiento_tipo": "Le type de mouvement doit être 'entrada' ou 'salida'",
         "invalid_movimiento_cantidad": "La quantité doit être supérieure à 0",
@@ -364,6 +398,11 @@ MESSAGES = {
 
         # routes/proveedores.py
         "proveedor_no_encontrado": "Fournisseur non trouvé",
+        "proveedor_existente": "Un fournisseur avec ce nom existe déjà",
+        "proveedor_ya_desactivado": "Le fournisseur était déjà désactivé",
+        "proveedor_desactivado_ok": "Fournisseur désactivé avec succès",
+        "proveedor_ya_activo": "Le fournisseur est déjà actif",
+        "proveedor_reactivado_ok": "Fournisseur réactivé avec succès",
 
         # routes/productos.py
         "producto_existente": "Un produit avec ce nom existe déjà dans l'entreprise",
@@ -499,12 +538,25 @@ MESSAGES = {
 
         # routes/proveedores.py
         "proveedor_no_encontrado": "Поставщик не найден",
+        "proveedor_existente": "Поставщик с таким названием уже существует",
+        "proveedor_ya_desactivado": "Поставщик уже был деактивирован",
+        "proveedor_desactivado_ok": "Поставщик успешно деактивирован",
+        "proveedor_ya_activo": "Поставщик уже активен",
+        "proveedor_reactivado_ok": "Поставщик успешно реактивирован",
 
         # routes/productos.py
         "producto_existente": "Продукт с таким названием уже существует в компании",
         "producto_no_encontrado": "Продукт не найден",
         "producto_eliminado_ok": "Продукт успешно удален",
         "producto_existencias_invalidas": "Минимальное и максимальное количество должны быть допустимыми значениями",
+
+        # routes/centros_costo.py
+        "centro_costo_existente": "Центр затрат с таким счётом или названием уже существует",
+        "centro_costo_no_encontrado": "Центр затрат не найден",
+        "centro_costo_ya_desactivado": "Центр затрат уже был деактивирован",
+        "centro_costo_desactivado_ok": "Центр затрат успешно деактивирован",
+        "centro_costo_ya_activo": "Центр затрат уже активен",
+        "centro_costo_reactivado_ok": "Центр затрат успешно реактивирован",
 
         # routes/movimientos.py
         "stock_insuficiente_salida": "Недостаточно запаса для выполнения списания",

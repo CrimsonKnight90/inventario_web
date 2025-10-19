@@ -1,12 +1,19 @@
 // ============================================================
 // Archivo: frontend/src/utils/apiClient.js
-// Descripción: Cliente HTTP centralizado (fetch) con base URL, auth, manejo de FormData y retorno consistente de JSON
+// Descripción: Cliente HTTP centralizado (fetch) con base URL, auth, manejo de FormData,
+//              normalización de URL y retorno consistente de JSON. Maneja errores 401/403.
 // Autor: CrimsonKnight90
 // ============================================================
 
 import { API_URL } from "../config"
 
 const isFormData = (body) => typeof FormData !== "undefined" && body instanceof FormData
+
+// Normaliza concatenación de URL para evitar dobles //
+function buildUrl(path) {
+  if (!path.startsWith("/")) path = `/${path}`
+  return `${API_URL.replace(/\/+$/, "")}${path}`
+}
 
 async function request(method, url, body = null, extraHeaders = {}) {
   const headers = { ...extraHeaders }
@@ -28,7 +35,7 @@ async function request(method, url, body = null, extraHeaders = {}) {
     }
   }
 
-  const resp = await fetch(`${API_URL}${url}`, fetchOptions)
+  const resp = await fetch(buildUrl(url), fetchOptions)
   const text = await resp.text()
   let data = null
   try {
@@ -39,13 +46,15 @@ async function request(method, url, body = null, extraHeaders = {}) {
 
   // Manejo de errores
   if (!resp.ok) {
-    // Si es 401, limpiar sesión y redirigir a login
     if (resp.status === 401) {
       sessionStorage.removeItem("token")
       window.location.href = "/login"
     }
+    if (resp.status === 403) {
+      window.location.href = "/403"
+    }
     const msg = typeof data === "object" ? JSON.stringify(data) : text || `HTTP ${resp.status}`
-    throw new Error(`Error HTTP ${resp.status}: ${msg}`)
+    throw { status: resp.status, message: msg, data }
   }
 
   return data

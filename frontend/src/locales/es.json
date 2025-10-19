@@ -11,7 +11,9 @@
   },
   "nav": {
     "dashboard": "Dashboard",
+    "proveedores": "Listado de Proveedores",
     "products": "Productos",
+    "centros_costo": "Centros de Costo",
     "operativo": "Operativo",
     "create_activity": "Crear Actividad",
     "close_activity": "Cerrar Actividad",
@@ -44,7 +46,6 @@
     "create_error": "Error al crear en {{endpoint}}",
     "create_success": "✅ Creado correctamente",
     "server_error": "Error de conexión con el servidor",
-    "confirm_deactivate": "¿Seguro que deseas desactivar \"{{id}}\"?",
     "deactivate_error": "Error al desactivar",
     "deactivate_success": "✅ \"{{id}}\" desactivado",
     "activate_error": "Error al activar",
@@ -55,9 +56,35 @@
     "activo": "Activo",
     "inactivo": "Inactivo",
     "desactivar": "Desactivar",
-    "activar": "Activar"
+    "activar": "Activar",
+    "confirm_deactivate": "¿Seguro que deseas desactivar la cuenta \"{{id}}\" con denominación \"{{nombre}}\"?",
+    "confirm_activate": "¿Seguro que deseas reactivar la cuenta \"{{id}}\" con denominación \"{{nombre}}\"?"
   },
-
+  "proveedor": {
+    "name": "Nombre",
+    "create_title": "Crear Proveedor",
+    "edit_title": "Editar Proveedor",
+    "create_button": "Crear Proveedor",
+    "update_button": "Actualizar",
+    "saving": "Guardando...",
+    "created_ok": "✅ Proveedor creado correctamente",
+    "updated_ok": "✅ Proveedor actualizado correctamente",
+    "confirm_deactivate": "¿Seguro que deseas desactivar \"{{nombre}}\"?",
+    "confirm_activate": "¿Seguro que deseas reactivar \"{{nombre}}\"",
+    "error_save": "Error al guardar proveedor",
+    "error_update": "Error al actualizar proveedor",
+    "error_deactivate": "Error al desactivar proveedor",
+    "error_activate": "Error al reactivar proveedor",
+    "error_nombre": "El nombre no puede estar vacío"
+  },
+  "proveedores": {
+    "title": "Proveedores",
+    "show_active": "Ver solo activos",
+    "show_all": "Ver todos (incl. inactivos)",
+    "no_records": "No hay proveedores",
+    "loading": "Cargando proveedores...",
+    "error_load": "Error al cargar proveedores"
+  },
   "categorias": {
     "title": "Categorías",
     "add_button": "Crear Categoría",
@@ -78,21 +105,13 @@
     "create_success": "Categoría creada correctamente",
     "update_success": "Categoría actualizada correctamente",
     "error_update": "Error al actualizar categoría",
-    "confirm_deactivate": "¿Desactivar esta categoría?",
     "deactivate_success": "Categoría desactivada",
     "error_deactivate": "Error al desactivar categoría",
     "activate_success": "Categoría reactivada",
     "error_activate": "Error al reactivar categoría",
-    "deactivated_ok": "Desactivar",
-    "reactivated_ok": "Activar"
+    "confirm_deactivate": "¿Seguro que deseas desactivar la categoría \"{{nombre}}\"?",
+    "confirm_activate": "¿Seguro que deseas reactivar la categoría \"{{nombre}}\"?"
   },
-  "loading": "Cargando...",
-  "edit": "Editar",
-  "deactivate": "Desactivar",
-  "reactivate": "Reactivar",
-  "cancel": "Cancelar",
-  "save": "Guardar",
-
   "producto": {
     "create_title": "Crear Producto",
     "edit_title": "Editar Producto",
@@ -116,8 +135,18 @@
     "select_category": "Selecciona una categoría",
     "created_ok": "✅ Producto creado correctamente",
     "updated_ok": "✅ Producto actualizado correctamente",
-    "deactivated_ok": "Desactivar",
-    "reactivated_ok": "Activar"
+    "confirm_deactivate": "¿Seguro que deseas desactivar \"{{nombre}}\"?",
+    "confirm_activate": "¿Seguro que deseas reactivar \"{{nombre}}\"?",
+    "producto_existente": "Ya existe un producto con ese nombre",
+    "producto.duplicate": "Ya existe un producto con ese nombre",
+    "producto.created_ok": "Producto creado correctamente",
+    "producto.updated_ok": "Producto actualizado correctamente",
+    "producto.deactivated_ok": "Producto desactivado",
+    "producto.reactivated_ok": "Producto reactivado",
+    "producto.error_save": "Error al crear producto",
+    "producto.error_update": "Error al actualizar producto",
+    "producto.error_deactivate": "Error al desactivar producto",
+    "producto.error_activate": "Error al reactivar producto"
   },
   "productos": {
     "title": "Lista de Productos",
@@ -126,6 +155,39 @@
     "no_records": "No hay productos",
     "show_active": "Ver solo activos",
     "show_all": "Ver todos (incl. inactivos)"
+  },
+  "centros_costo": {
+    "title": "Centros de Costo",
+    "show_active": "Ver solo activos",
+    "show_all": "Ver todos (incl. inactivos)",
+    "no_records": "No hay centros de costo",
+    "loading": "Cargando centros de costo...",
+    "error_load": "Error al cargar centros de costo"
+  },
+  "centro_costo": {
+    "cuentacc": "Cuenta",
+    "nomcc": "Denominación",
+    "cuentacc_placeholder": "Ej: 000-00-00-00",
+    "cuentacc_help": "Formato requerido: 000-00-00-00",
+    "cuentacc_valid": "Formato válido ✅",
+    "create_title": "Crear Centro de Costo",
+    "edit_title": "Editar Centro de Costo",
+    "create_button": "Crear Centro de Costo",
+    "update_button": "Actualizar",
+    "saving": "Guardando...",
+    "created_ok": "✅ Centro de costo creado correctamente",
+    "updated_ok": "✅ Centro de costo actualizado correctamente",
+    "deactivated_ok": "Centro de costo desactivado",
+    "reactivated_ok": "Centro de costo reactivado",
+    "error_save": "Error al guardar centro de costo",
+    "error_update": "Error al actualizar centro de costo",
+    "error_deactivate": "Error al desactivar centro de costo",
+    "error_activate": "Error al reactivar centro de costo",
+    "error_cuentacc": "Formato inválido (000-00-00-00)",
+    "error_nomcc": "La denominación no puede estar vacía",
+    "duplicate": "Ya existe un centro de costo con esa cuenta",
+    "available": "Disponible ✅",
+    "checking": "Verificando disponibilidad..."
   },
   "movimiento": {
     "entrada": "Entrada",

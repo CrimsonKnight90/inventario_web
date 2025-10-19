@@ -13,13 +13,15 @@ import AppHeading from "../../components/AppHeading"
 import AppForm from "../../components/AppForm"
 import AppInput from "../../components/AppInput"
 import AppButton from "../../components/AppButton"
+import Notification from "../../components/Notification"
+import { useNotification } from "../../hooks/useNotification"
+import { getErrorDetail } from "../../utils/errorUtils"
 
 export default function CrearActividadPage() {
   const { t } = useTranslation()
   const [form, setForm] = useState({ nomact: "", fechaini: "", fechafin: "" })
-  const [mensaje, setMensaje] = useState("")
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
+  const { notif, notify, clear } = useNotification()
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -27,15 +29,13 @@ export default function CrearActividadPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setMensaje("")
-    setError("")
     setLoading(true)
     try {
       await apiClient.post("/actividades/", form)
-      setMensaje(t("actividades.create_success", { defaultValue: "Actividad creada correctamente" }))
+      notify.success(t("actividades.create_success", { defaultValue: "Actividad creada correctamente" }))
       setForm({ nomact: "", fechaini: "", fechafin: "" })
     } catch (err) {
-      setError(err.message || t("actividades.error_create", { defaultValue: "Error al crear actividad" }))
+      notify.error(getErrorDetail(err, t("actividades.error_create", { defaultValue: "Error al crear actividad" })))
     } finally {
       setLoading(false)
     }
@@ -43,10 +43,9 @@ export default function CrearActividadPage() {
 
   return (
     <AppPageContainer>
-      <AppHeading level={1}>➕ {t("actividades.create_title", { defaultValue: "Crear actividad" })}</AppHeading>
+      <Notification message={notif.message} type={notif.type} onClose={clear} />
 
-      {mensaje && <p className="mb-4 text-green-700">{mensaje}</p>}
-      {error && <p className="mb-4 text-red-600">{error}</p>}
+      <AppHeading level={1}>➕ {t("actividades.create_title", { defaultValue: "Crear actividad" })}</AppHeading>
 
       <AppSection>
         <AppForm onSubmit={handleSubmit} className="space-y-4">
