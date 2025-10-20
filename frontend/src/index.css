@@ -1,3 +1,79 @@
+/* src/index.css - reglas globales */
+
+/* 1) Directivas Tailwind */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 2) Variables globales y fallback para --hover-bg */
+:root {
+    --hover-bg: #F59E0B; /* fallback */
+    --topbar-height: 56px;
+    --topbar-bg: #0F172A;
+}
+
+/* Si usas dark mode por clase 'dark' en <html> puedes ajustar aquí */
+.dark {
+    --hover-bg: #D97706;
+}
+
+/* 3)  Reglas globales existentes (trasladadas desde App.css) */
+#root {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: center;
+    --hover-bg: #F59E0B;
+  --topbar-height: 56px;
+  --topbar-bg: #0F172A;
+  --sidebar-bg: #1E40AF;
+  --app-background: #F3F4F6;
+}
+
+.logo {
+    height: 6em;
+    padding: 1.5em;
+    will-change: filter;
+    transition: filter 300ms;
+}
+
+.logo:hover {
+    filter: drop-shadow(0 0 2em #646cffaa);
+}
+
+.logo.react:hover {
+    filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    a:nth-of-type(2) .logo {
+        animation: logo-spin infinite 20s linear;
+    }
+}
+
+.card {
+    padding: 2em;
+}
+
+.read-the-docs {
+    color: #888;
+}
+
+/* 4) (Opcional) regla de respaldo para enlaces que usan la variable --hover-bg */
+.sidebar-link-hover {
+    transition: background-color 150ms;
+}
+
+.sidebar-link-hover:hover {
+    background-color: var(--hover-bg);
+    color: rgba(0, 0, 0, 0.9);
+}

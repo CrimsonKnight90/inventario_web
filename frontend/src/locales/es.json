@@ -10,10 +10,13 @@
     "error": "Credenciales inválidas"
   },
   "nav": {
+    "panel_label": "Panel de Navegacion",
     "dashboard": "Dashboard",
     "proveedores": "Listado de Proveedores",
+    "categorias": "Categoria de Productos",
     "products": "Productos",
     "centros_costo": "Centros de Costo",
+    "contrapartes": "Cuentas Contrapartidas",
     "operativo": "Operativo",
     "create_activity": "Crear Actividad",
     "close_activity": "Cerrar Actividad",
@@ -24,7 +27,7 @@
     "admin": "Admin",
     "parameters": "Parámetros",
     "units": "Unidades de Medida",
-    "currencies": "Monedas",
+    "currencies": "Tipos de Monedas",
     "doc_types": "Tipos de Documento",
     "logout": "Cerrar sesión",
     "config": "Configuración"

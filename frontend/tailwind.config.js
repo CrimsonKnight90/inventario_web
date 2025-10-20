@@ -1,17 +1,21 @@
-// tailwind.config.js
-import { branding } from "./src/config/branding.js"
+// ============================================================
+// Archivo: tailwind.config.js
+// Descripción: Configuración de TailwindCSS con branding dinámico y fallbacks defensivos
+// Autor: CrimsonKnight90
+// ============================================================
+
+import { branding } from "./src/config/branding.js";
 
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
       colors: {
-        primary: branding.colors.primary,
-        secondary: branding.colors.secondary,
-        background: branding.colors.background,
+        // Fallbacks seguros si branding no está presente o le faltan claves
+        primary: branding?.colors?.primary ?? branding?.primary_color ?? "#1E293B",
+        secondary: branding?.colors?.secondary ?? branding?.secondary_color ?? "#64748B",
+        background: branding?.colors?.background ?? branding?.background_color ?? "#FFFFFF",
+        topbar: branding?.colors?.topbar ?? branding?.topbar_color ?? "#0F172A",
       },
       fontFamily: {
         sans: ["Inter", "ui-sans-serif", "system-ui"],
@@ -31,4 +35,4 @@ export default {
     },
   },
   plugins: [],
-}
+};

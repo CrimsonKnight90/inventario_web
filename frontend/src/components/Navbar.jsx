@@ -1,122 +1,182 @@
 // ============================================================
 // Archivo: frontend/src/components/Navbar.jsx
-// Descripción: Sidebar lateral fijo con navegación y logout
+// Descripción: Sidebar colapsable con scroll por sección (Tailwind + Heroicons).
+//              Detección robusta de Dashboard y Administración usando i18n.
+//              Fix: colapso real de paneles (overflow-hidden en wrapper) para evitar superposición.
 // Autor: CrimsonKnight90
 // ============================================================
 
-import {useAuth} from "../context/AuthContext"
-import {useTranslation} from "react-i18next"
-import {useBranding} from "../context/BrandingContext"
-import NavItem from "./NavItem"
+import React, {useState, useMemo} from "react";
+import {useBranding} from "../context/BrandingContext";
+import {useSidebarSections} from "../hooks/useSidebarSections";
+import {NavLink} from "react-router-dom";
+import SkeletonSidebar from "./SkeletonSidebar";
+import {useTranslation} from "react-i18next";
 
 export default function Navbar() {
-    const {user, isAuthenticated} = useAuth()
-    const {t} = useTranslation()
-    const {branding} = useBranding()
+    const {branding} = useBranding();
+    const {sections, loading, error} = useSidebarSections();
+    const {t} = useTranslation();
+    const [open, setOpen] = useState(null);
+    const [reloadKey, setReloadKey] = useState(0); // para re-evaluación si reintentar
+
+    const cardBg = branding?.colors?.primary || "#1E293B";
+    const hoverBg = branding?.colors?.secondary || "#F59E0B";
+
+    const handleToggle = (idx) => setOpen((prev) => (prev === idx ? null : idx));
+    const handleRetry = () => setReloadKey((k) => k + 1);
+
+    const keyedSections = useMemo(
+        () => (sections || []).map((s, i) => ({...s, _key: s.title || `section-${i}`})),
+        [sections, reloadKey]
+    );
+
+    if (loading) return <SkeletonSidebar/>;
+
+    // traducciones canonicas a comparar
+    const DASHBOARD_LABEL = (t && typeof t === "function") ? t("nav.dashboard", {defaultValue: "Dashboard"}).toLowerCase() : "dashboard";
+    const ADMIN_LABEL = (t && typeof t === "function") ? t("nav.administracion", {defaultValue: "Administración"}).toLowerCase() : "administración";
 
     return (
         <aside
-            className="fixed top-14 left-0 h-screen w-64 text-white flex flex-col z-40"
-            style={{backgroundColor: branding?.primary_color || "#1E293B"}}
+            aria-label="Sidebar"
+            className="fixed left-0 w-64 z-30"
+            style={{
+                top: "var(--topbar-height)",
+                height: "calc(100vh - var(--topbar-height))",
+                backgroundColor: cardBg,
+                "--hover-bg": hoverBg,
+                display: "flex",
+                flexDirection: "column",
+                overflowY: "auto",
+                WebkitOverflowScrolling: "touch",
+                overscrollBehavior: "contain",
+            }}
         >
-            <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-                {isAuthenticated && (
-                    <>
-                        <NavItem to="/dashboard">
-                            📊 {t("nav.dashboard", {defaultValue: "Dashboard"})}
-                        </NavItem>
+            <div className="px-4 py-4 border-b border-white/10">
+                <div className="flex items-center gap-3">
 
-                        {/* 🔹 Sección Listados */}
-                        <div className="mt-6">
-                            <p className="text-xs uppercase text-gray-400 mb-2">
-                                {t("nav.listados", {defaultValue: "Listados"})}
-                            </p>
-                            <NavItem to="/listados/actividades">
-                                📋 {t("nav.all_activities", {defaultValue: "Todas las Actividades"})}
-                            </NavItem>
-                            <NavItem to="/listados/actividades/creadas">
-                                ✅ {t("nav.created_activities", {defaultValue: "Actividades Creadas"})}
-                            </NavItem>
-                            <NavItem to="/listados/actividades/cerradas">
-                                🔒 {t("nav.closed_activities", {defaultValue: "Actividades Cerradas"})}
-                            </NavItem>
-                            <NavItem to="/listados/proveedores">
-                                🧑‍💼 {t("nav.proveedores", {defaultValue: "Proveedores"})}
-                            </NavItem>
+                    {/* Título: mismas utilidades que los enlaces, pero más grande */}
+                    <div className="flex flex-col">
+                        <span className="text-white font-heading font-semibold text-base leading-tight">
+                            {t ? t("nav.panel_label", {defaultValue: "Panel de navegación"}) : "Panel"}
+                        </span>
+                    </div>
+                </div>
+            </div>
 
+            <nav className="flex-1 px-2 py-3">
+                {error ? (
+                    <div className="px-4 py-3">
+                        <p className="text-sm text-yellow-200 mb-3">Error al cargar el menú. Por favor intenta
+                            nuevamente.</p>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={handleRetry}
+                                className="px-3 py-2 rounded bg-white/6 text-white hover:bg-white/10 transition"
+                            >
+                                Reintentar
+                            </button>
                         </div>
+                    </div>
+                ) : keyedSections.length === 0 ? (
+                    <p className="text-xs text-gray-200 px-3">No hay secciones disponibles.</p>
+                ) : (
+                    keyedSections.map((section, idx) => {
+                        const titleNormalized = String(section.title || "").toLowerCase();
 
-                        {/* 🔹 Sección Administracion */}
-                        <div className="mt-6">
-                            <p className="text-xs uppercase text-gray-400 mb-2">
-                                {t("nav.administracion", {defaultValue: "Administracion"})}
-                            </p>
-                            <NavItem to="/proveedores">
-                                🧑‍💼 {t("proveedores.title", {defaultValue: "Proveedores"})}
-                            </NavItem>
-                            <NavItem to="/categorias">
-                                🗂️ {t("nav.categorias", {defaultValue: "Categorías"})}
-                            </NavItem>
-                            <NavItem to="/productos">
-                                📦 {t("nav.products", {defaultValue: "Productos"})}
-                            </NavItem>
-                            <NavItem to="/centros-costo">
-                                🏢 {t("nav.centros_costo", {defaultValue: "Centros de Costo"})}
-                            </NavItem>
-                            <NavItem to="/contrapartes">
-                                🔄 {t("nav.contrapartes", {defaultValue: "Contrapartes"})}
-                            </NavItem>
+                        // 1) Dashboard: si la sección se llama "dashboard" (i18n) o contiene un único item /dashboard => enlace directo
+                        const isDashboardByTitle = titleNormalized === DASHBOARD_LABEL || titleNormalized.includes(DASHBOARD_LABEL);
+                        const isDashboardSingle =
+                            isDashboardByTitle ||
+                            (Array.isArray(section.items) && section.items.length === 1 && section.items[0]?.to === "/dashboard");
 
-                        </div>
+                        if (isDashboardSingle) {
+                            const item = section.items[0];
+                            return (
+                                <div key={section._key} className="mb-3">
+                                    <NavLink
+                                        to={item.to}
+                                        className={({isActive}) =>
+                                            `flex items-center gap-2 px-4 py-2 rounded transition-colors duration-150 ${
+                                                isActive ? "bg-white/6 text-white font-semibold" : "text-white hover:bg-[var(--hover-bg)] hover:text-black/90"
+                                            }`
+                                        }
+                                    >
+                                        {section.icon ?
+                                            <section.icon className="h-5 w-5 text-white/95" aria-hidden="true"/> : null}
+                                        <span className="text-sm font-medium">{item.label}</span>
+                                    </NavLink>
+                                </div>
+                            );
+                        }
 
-                        {/* 🔹 Sección Operativo */}
-                        <div className="mt-6">
-                            <p className="text-xs uppercase text-gray-400 mb-2">
-                                {t("nav.operativo", {defaultValue: "Operativo"})}
-                            </p>
-                            <NavItem to="/operativo/actividades/crear">
-                                ➕ {t("nav.create_activity", {defaultValue: "Crear Actividad"})}
-                            </NavItem>
-                            <NavItem to="/operativo/actividades/cerrar">
-                                🔒 {t("nav.close_activity", {defaultValue: "Cerrar Actividad"})}
-                            </NavItem>
-                        </div>
+                        // 2) Administración: detectar por título traducido y al expandir mostrar todo sin scroll interno
+                        const isAdministracion = titleNormalized === ADMIN_LABEL || titleNormalized.includes(ADMIN_LABEL);
 
-                        {/* 🔹 Sección Parámetros (solo admin) */}
-                        {user?.role === "admin" && (
-                            <div className="mt-6">
-                                <p className="text-xs uppercase text-gray-400 mb-2">
-                                    {t("nav.parametros", {defaultValue: "Parámetros"})}
-                                </p>
-                                <NavItem to="/parametros/um">
-                                    ⚖️ {t("nav.um", {defaultValue: "Unidades de Medida"})}
-                                </NavItem>
-                                <NavItem to="/parametros/monedas">
-                                    💱 {t("nav.monedas", {defaultValue: "Monedas"})}
-                                </NavItem>
-                                <NavItem to="/parametros/tipos-documentos">
-                                    📑 {t("nav.tipos_documentos", {defaultValue: "Tipos de Documentos"})}
-                                </NavItem>
+                        return (
+                            <div key={section._key} className="mb-4">
+                                <button
+                                    type="button"
+                                    onClick={() => handleToggle(idx)}
+                                    className="w-full flex items-center gap-3 px-3 py-2 rounded transition-colors duration-150 hover:bg-white/5"
+                                    aria-expanded={open === idx}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        {section.icon ?
+                                            <section.icon className="h-5 w-5 text-white/95" aria-hidden="true"/> : null}
+                                        <span className="text-sm font-medium text-white">{section.title}</span>
+                                    </div>
+
+                                    <svg
+                                        className={`ml-auto h-4 w-4 text-white transition-transform duration-150 ${open === idx ? "rotate-180" : ""}`}
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                    >
+                                        <path d="M6 9l6 6 6-6" strokeWidth="2" strokeLinecap="round"
+                                              strokeLinejoin="round"/>
+                                    </svg>
+                                </button>
+
+                                {/* PANEL: wrapper exterior controla el colapso y recorte */}
+                                <div
+                                    className={`mt-1 px-1 transition-[max-height] duration-200 ease-in-out overflow-hidden ${
+                                        open === idx ? "max-h-[2000px]" : "max-h-0"
+                                    }`}
+                                >
+                                    {/* contenido interior fluye libremente; no max-h ni overflow interno */}
+                                    <div className="pr-1">
+                                        <ul className={`space-y-1 ${isAdministracion ? "" : ""}`}>
+                                            {section.items.map((item) => (
+                                                <li key={item.to}>
+                                                    <NavLink
+                                                        to={item.to}
+                                                        className={({isActive}) =>
+                                                            `flex items-center gap-2 px-6 py-2 rounded transition-colors duration-150 ${
+                                                                isActive ? "bg-white/6 text-white font-semibold" : "text-white hover:bg-[var(--hover-bg)] hover:text-black/90"
+                                                            }`
+                                                        }
+                                                    >
+                                                        <svg className="h-3 w-4 text-white/70" viewBox="0 0 24 24"
+                                                             fill="none" stroke="currentColor">
+                                                            <path d="M9 18l6-6-6-6" strokeWidth="2"
+                                                                  strokeLinecap="round" strokeLinejoin="round"/>
+                                                        </svg>
+                                                        <span className="text-sm">{item.label}</span>
+                                                    </NavLink>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
-                        )}
-                    </>
-                )}
-
-                <p className="text-xs uppercase text-gray-400 mb-2">
-                    {t("nav.usuario", {defaultValue: "Usuario"})}
-                </p>
-
-                {user?.role === "admin" && (
-                    <>
-                        <NavItem to="/admin">
-                            🛠️ {t("nav.admin", {defaultValue: "Admin"})}
-                        </NavItem>
-                        <NavItem to="/config">
-                            ⚙️ {t("nav.config", {defaultValue: "Configuración"})}
-                        </NavItem>
-                    </>
+                        );
+                    })
                 )}
             </nav>
+
+            {/* El logout quedó en Topbar según tu directiva */}
         </aside>
-    )
+    );
 }
