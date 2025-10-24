@@ -4,9 +4,9 @@ from uuid import UUID
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 
-from src.models.inventory import Inventory
-from src.models.reservation import Reservation
-from src.models.movement import Movement
+from src.app.models.inventory import Inventory
+from src.app.models.reservation import Reservation
+from src.app.models.movement import Movement
 
 
 async def check_alerts(

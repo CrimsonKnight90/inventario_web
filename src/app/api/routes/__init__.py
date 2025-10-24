@@ -17,12 +17,13 @@ router = APIRouter()
 from src.app.api.routes import alerts as alerts_mod
 from src.app.api.routes import audit as audit_mod
 from src.app.api.routes import auth as auth_mod
+from src.app.api.routes import categories as categories_mod
 from src.app.api.routes import inventory as inventory_mod
 from src.app.api.routes import movements as movements_mod
-from src.app.api.routes import pruducts as pruducts_mod  # filename 'pruducts.py' preserved
+from src.app.api.routes import products as products_mod  # filename 'pruducts.py' preserved
 from src.app.api.routes import reports as reports_mod
 from src.app.api.routes import reservations as reservations_mod
-
+from src.app.api.routes import units as units_mod
 # Include routers from modules (they should already define prefixes)
 for sub in (
     alerts_mod,
@@ -30,9 +31,11 @@ for sub in (
     auth_mod,
     inventory_mod,
     movements_mod,
-    pruducts_mod,
+    products_mod,
     reports_mod,
     reservations_mod,
+    categories_mod,
+    units_mod,
 ):
     # Each module should expose `router` variable (APIRouter)
     if hasattr(sub, "router"):

@@ -1,3 +1,4 @@
+# src\app\api\deps\auth.py
 from typing import List, Optional
 
 from fastapi import Depends, HTTPException, status
@@ -13,7 +14,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)) -> User:
-    """Resolve current user from JWT and DB."""
     try:
         payload = decode_token(token)
     except ValueError:
@@ -30,7 +30,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), session: AsyncSe
     return user
 
 
-async def require_roles(required: List[str]):
+def require_roles(required: List[str]):
     """Dependency factory: ensure the current user has any of required roles."""
     async def dependency(user: User = Depends(get_current_user), session: AsyncSession = Depends(get_session)) -> User:
         user_roles = await get_user_roles(session, user.id)

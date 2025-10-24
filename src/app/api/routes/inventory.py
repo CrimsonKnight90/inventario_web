@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from uuid import UUID
 
-from src.db.session import get_session
-from src.models.inventory import Inventory
-from src.schemas.inventory import InventoryRead
+from src.app.db.session import get_session
+from src.app.models.inventory import Inventory
+from src.app.schemas.inventory import InventoryRead
 
 router = APIRouter(prefix="/inventory", tags=["inventory"])
 
@@ -29,3 +29,13 @@ async def list_inventory(
 
     result = await session.execute(stmt)
     return result.scalars().all()
+
+
+@router.get("/{inventory_id}", response_model=InventoryRead)
+async def get_inventory(inventory_id: UUID, session: AsyncSession = Depends(get_session)) -> InventoryRead:
+    """Get a single inventory record by ID."""
+    result = await session.execute(select(Inventory).where(Inventory.id == inventory_id))
+    inventory = result.scalar_one_or_none()
+    if not inventory:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Inventory record not found")
+    return inventory

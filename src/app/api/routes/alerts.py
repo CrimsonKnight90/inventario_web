@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from decimal import Decimal
@@ -7,15 +7,16 @@ from src.app.db.session import get_session
 from src.app.services.alerts import check_alerts
 from src.app.core.settings import settings
 from src.app.services.notifications.slack_notifier import send_slack_alert
+from src.app.schemas.alert import AlertRead
 
 router = APIRouter(prefix="/alerts", tags=["alerts"])
 
 
-@router.get("/stock")
+@router.get("/stock", response_model=list[AlertRead])
 async def stock_alerts(
-    product_id: UUID,
-    batch_id: UUID | None = None,
-    location_id: UUID | None = None,
+    product_id: UUID = Query(...),
+    batch_id: UUID | None = Query(None),
+    location_id: UUID | None = Query(None),
     min_stock: Decimal = Decimal(settings.alerts_min_stock),
     min_coverage_days: int = settings.alerts_min_coverage_days,
     lookback_days: int = settings.alerts_lookback_days,
@@ -31,7 +32,7 @@ async def stock_alerts(
         min_coverage_days=min_coverage_days,
         lookback_days=lookback_days,
     )
-    return {"alerts": alerts}
+    return [AlertRead(**a) if not isinstance(a, AlertRead) else a for a in alerts]
 
 
 @router.post("/stock/notify")

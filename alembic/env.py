@@ -26,7 +26,7 @@ target_metadata = base.Base.metadata
 def get_url() -> str:
     return os.getenv(
         "DATABASE_URL",
-        "postgresql+asyncpg://postgres:password@localhost:5432/inventario"
+        "postgresql+asyncpg://postgres:postgres@localhost:5432/inventario"
     )
 
 def run_migrations_offline() -> None:

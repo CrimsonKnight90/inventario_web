@@ -2,8 +2,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from uuid import UUID
 from decimal import Decimal
-from src.models.inventory import Inventory
-from src.models.reservation import Reservation
+from src.app.models.inventory import Inventory
+from src.app.models.reservation import Reservation
 
 
 async def validate_reservation(

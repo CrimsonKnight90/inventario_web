@@ -1,0 +1,207 @@
+@startuml
+!theme plain
+
+entity audit_log {
+  *id : UUID
+  --
+  entity_name : text
+  entity_id : UUID
+  action : text
+  changes : JSONB
+  performed_by_user_id : UUID
+  reason : text
+  occurred_at : timestamptz
+}
+
+entity category {
+  *id : UUID
+  --
+  name : text <<UK>>
+  parent_id : UUID <<FK>>
+}
+
+entity cost_center {
+  *id : UUID
+  --
+  code : text <<UK>>
+  name : text
+}
+
+entity event {
+  *id : UUID
+  --
+  code : text <<UK>>
+  name : text
+}
+
+entity movement_reason {
+  *id : UUID
+  --
+  code : text <<UK>>
+  description : text
+  requires_approval : boolean
+}
+
+entity movement_type {
+  *id : UUID
+  --
+  code : text <<UK>>
+  description : text
+}
+
+entity party {
+  *id : UUID
+  --
+  type : text
+  name : text
+  tax_id : text
+  contact : text
+}
+
+entity role {
+  *id : UUID
+  --
+  code : text <<UK>>
+  description : text
+}
+
+entity unit {
+  *id : UUID
+  --
+  code : text <<UK>>
+  description : text
+  precision : numeric
+}
+
+entity user_account {
+  *id : UUID
+  --
+  username : text <<UK>>
+  email : text <<UK>>
+  password_hash : text
+  active : boolean
+}
+
+entity warehouse {
+  *id : UUID
+  --
+  code : text <<UK>>
+  name : text
+  address : text
+  is_cold_chain : boolean
+}
+
+entity location {
+  *id : UUID
+  --
+  warehouse_id : UUID <<FK>>
+  code : text
+  type : text
+  path : text
+  active : boolean
+}
+
+entity product {
+  *id : UUID
+  --
+  name : text
+  sku : text <<UK>>
+  category_id : UUID <<FK>>
+  unit_id : UUID <<FK>>
+  is_serialized : boolean
+  is_perishable : boolean
+}
+
+entity user_role {
+  *user_id : UUID <<FK>>
+  *role_id : UUID <<FK>>
+  --
+  assigned_at : timestamptz
+}
+
+entity batch {
+  *id : UUID
+  --
+  product_id : UUID <<FK>>
+  code : text
+  expiration_date : date
+  origin_type : text
+  origin_id : UUID <<FK>>
+  quarantined : boolean
+}
+
+entity inventory {
+  *id : UUID
+  --
+  product_id : UUID <<FK>>
+  batch_id : UUID <<FK>>
+  location_id : UUID <<FK>>
+  quantity : numeric
+}
+
+entity movement {
+  *id : UUID
+  --
+  code : text <<UK>>
+  movement_type_id : UUID <<FK>>
+  product_id : UUID <<FK>>
+  batch_id : UUID <<FK>>
+  from_location_id : UUID <<FK>>
+  to_location_id : UUID <<FK>>
+  reason_id : UUID <<FK>>
+  requested_by_user_id : UUID <<FK>>
+  executed_by_user_id : UUID <<FK>>
+  quantity : numeric
+}
+
+entity reservation {
+  *id : UUID
+  --
+  product_id : UUID <<FK>>
+  batch_id : UUID <<FK>>
+  location_id : UUID <<FK>>
+  event_id : UUID <<FK>>
+  cost_center_id : UUID <<FK>>
+  quantity : numeric
+  status : text
+}
+
+entity serial {
+  *id : UUID
+  --
+  product_id : UUID <<FK>>
+  batch_id : UUID <<FK>>
+  serial_number : text <<UK>>
+  location_id : UUID <<FK>>
+  status : text
+}
+
+' Relaciones
+category ||--o{ category : parent
+category ||--o{ product : contains
+unit ||--o{ product : measures
+warehouse ||--o{ location : has
+product ||--o{ batch : groups
+party ||--o{ batch : origin
+product ||--o{ inventory : stock
+batch ||--o{ inventory : stock
+location ||--o{ inventory : stock
+user_account ||--o{ user_role : assigned
+role ||--o{ user_role : assigned
+movement_type ||--o{ movement : type
+product ||--o{ movement : moved
+batch ||--o{ movement : moved
+location ||--o{ movement : from
+location ||--o{ movement : to
+movement_reason ||--o{ movement : reason
+user_account ||--o{ movement : requested
+user_account ||--o{ movement : executed
+product ||--o{ reservation : reserved
+batch ||--o{ reservation : reserved
+location ||--o{ reservation : reserved
+event ||--o{ reservation : linked
+cost_center ||--o{ reservation : linked
+product ||--o{ serial : identified
+batch ||--o{ serial : identified
+location ||--o{ serial : stored
+@enduml

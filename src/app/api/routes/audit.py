@@ -4,8 +4,8 @@ from sqlalchemy.future import select
 from datetime import datetime
 from uuid import UUID
 
-from src.db.session import get_session
-from src.models.audit_log import AuditLog
+from src.app.db.session import get_session
+from src.app.models.audit_log import AuditLog
 
 router = APIRouter(prefix="/audit", tags=["audit"])
 

@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from uuid import UUID
 
 from src.app.db.session import get_session
 from src.app.models.movement import Movement
@@ -80,4 +81,32 @@ async def create_movement(
 
     await session.commit()
     await session.refresh(movement)
+    return movement
+
+
+@router.get("/", response_model=list[MovementRead])
+async def list_movements(
+    session: AsyncSession = Depends(get_session),
+    product_id: UUID | None = Query(None),
+    batch_id: UUID | None = Query(None),
+    limit: int = Query(50, ge=1, le=500),
+) -> list[MovementRead]:
+    """List movements with optional filters."""
+    stmt = select(Movement).order_by(Movement.occurred_at.desc()).limit(limit)
+    if product_id:
+        stmt = stmt.where(Movement.product_id == product_id)
+    if batch_id:
+        stmt = stmt.where(Movement.batch_id == batch_id)
+
+    result = await session.execute(stmt)
+    return result.scalars().all()
+
+
+@router.get("/{movement_id}", response_model=MovementRead)
+async def get_movement(movement_id: UUID, session: AsyncSession = Depends(get_session)) -> MovementRead:
+    """Get a single movement by ID."""
+    result = await session.execute(select(Movement).where(Movement.id == movement_id))
+    movement = result.scalar_one_or_none()
+    if not movement:
+        raise HTTPException(status_code=404, detail="Movement not found")
     return movement
