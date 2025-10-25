@@ -1,6 +1,6 @@
 # Ruta: scripts/maintenance/run_maintenance.ps1
 param(
-  [int]$BatchSize = 10,
+  [int]$BatchSize = 50,
   [int]$LockKey = 123456789,
   [string]$ProjectRoot = ""
 )

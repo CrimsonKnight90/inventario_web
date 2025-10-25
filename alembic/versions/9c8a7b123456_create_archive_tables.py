@@ -1,4 +1,4 @@
-"""create archive tables for movement, reservation, batch
+"""create archive tables for movement, reservation, batch, serial
 
 Revision ID: 9c8a7b123456
 Revises: 7b2f1c9a1234
@@ -48,7 +48,7 @@ def upgrade() -> None:
         sa.Column('cost_center_id', sa.UUID(), nullable=True),
         sa.Column('quantity', sa.Numeric(), nullable=False),
         sa.Column('reserved_from', sa.TIMESTAMP(timezone=True), nullable=False),
-        sa.Column('reserved_until', sa.DateTime(), nullable=True),
+        sa.Column('reserved_until', sa.TIMESTAMP(timezone=True), nullable=True),
         sa.Column('status', sa.Text(), nullable=False),
         sa.Column('id', sa.UUID(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
@@ -73,8 +73,25 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint('id')
     )
 
+    # Serial archive (alineada con la tabla serial original, pero sin FKs)
+    op.create_table(
+        'serial_archive',
+        sa.Column('product_id', sa.UUID(), nullable=False),
+        sa.Column('batch_id', sa.UUID(), nullable=True),
+        sa.Column('serial_number', sa.Text(), nullable=False),
+        sa.Column('location_id', sa.UUID(), nullable=True),
+        sa.Column('status', sa.Text(), nullable=True),
+        sa.Column('id', sa.UUID(), nullable=False),
+        sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
+        sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
+        sa.Column('deleted_at', sa.TIMESTAMP(timezone=True), nullable=True),
+        sa.PrimaryKeyConstraint('id'),
+        sa.UniqueConstraint('serial_number')
+    )
+
 
 def downgrade() -> None:
     op.drop_table('movement_archive')
     op.drop_table('reservation_archive')
     op.drop_table('batch_archive')
+    op.drop_table('serial_archive')

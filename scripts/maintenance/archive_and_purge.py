@@ -76,7 +76,9 @@ async def _move_batch_atomic(
 
     # 2) Collect candidate ids (up to limit) to evaluate which exist in archive (either newly inserted or pre-existing)
     res_cand = await session.execute(
-        sa.text(f"SELECT id FROM (SELECT id FROM {src_table} WHERE {cutoff_column} < :cutoff ORDER BY id LIMIT :limit) t").execution_options(_sa_skip_with_loader_criteria=True),
+        sa.text(
+            f"SELECT id FROM (SELECT id FROM {src_table} WHERE {cutoff_column} < :cutoff ORDER BY id LIMIT :limit) t").execution_options(
+            _sa_skip_with_loader_criteria=True),
         {"cutoff": cutoff_dt, "limit": limit},
     )
     candidates = [str(r[0]) for r in res_cand.fetchall()]
@@ -84,7 +86,8 @@ async def _move_batch_atomic(
     exist_ids: List[str] = []
     if candidates:
         res_exist = await session.execute(
-            sa.text(f"SELECT id FROM {archive_table} WHERE id = ANY(:ids)").execution_options(_sa_skip_with_loader_criteria=True),
+            sa.text(f"SELECT id FROM {archive_table} WHERE id = ANY(:ids)").execution_options(
+                _sa_skip_with_loader_criteria=True),
             {"ids": candidates},
         )
         exist_ids = [str(r[0]) for r in res_exist.fetchall()]
@@ -93,7 +96,8 @@ async def _move_batch_atomic(
     moved_ids: List[str] = []
     if exist_ids:
         res_del = await session.execute(
-            sa.text(f"DELETE FROM {src_table} WHERE id = ANY(:ids) RETURNING id").execution_options(_sa_skip_with_loader_criteria=True),
+            sa.text(f"DELETE FROM {src_table} WHERE id = ANY(:ids) RETURNING id").execution_options(
+                _sa_skip_with_loader_criteria=True),
             {"ids": exist_ids},
         )
         moved_ids = [str(r[0]) for r in res_del.fetchall()]
@@ -178,6 +182,25 @@ async def maintenance_job(dry_run: bool = True, batch_size: int = BATCH_SIZE, lo
                 if not dry_run:
                     await session.commit()
 
+            # 3) Serials (must run before batches to avoid FK violations)
+            serial_columns = [
+                "id", "product_id", "batch_id", "serial_number",
+                "location_id", "status", "created_at", "updated_at", "deleted_at"
+            ]
+            cutoff_serial = datetime.now(timezone.utc) - timedelta(days=365 * 3)
+
+            while True:
+                moved_ids = await _move_batch_atomic(
+                    session, "serial", "serial_archive", serial_columns,
+                    "deleted_at", cutoff_serial, limit=batch_size, dry_run=dry_run
+                )
+                if not moved_ids:
+                    break
+                totals["serial"] = totals.get("serial", 0) + len(moved_ids)
+                logger.info("Moved serial ids (batch): %s", moved_ids)
+                if not dry_run:
+                    await session.commit()
+
             # 3) Batches (parents) — but verify children per-lote before deleting
             cutoff_batch = datetime.now(timezone.utc) - timedelta(days=365 * 5)
             while True:
@@ -202,7 +225,8 @@ async def maintenance_job(dry_run: bool = True, batch_size: int = BATCH_SIZE, lo
                 residual = [str(r[0]) for r in res_child.fetchall()]
 
                 if residual:
-                    logger.warning("Found residual movement children for batch ids, will attempt to move them first: %s", residual)
+                    logger.warning(
+                        "Found residual movement children for batch ids, will attempt to move them first: %s", residual)
                     # Attempt to move movements referencing these batches (only ones older than movement cutoff)
                     # Use candidate set to limit scope
                     sql_move_specific = f"""
@@ -225,13 +249,15 @@ async def maintenance_job(dry_run: bool = True, batch_size: int = BATCH_SIZE, lo
                     if moved_specific:
                         # delete those that exist now in archive
                         res_exist = await session.execute(
-                            sa.text("SELECT id FROM movement_archive WHERE id = ANY(:ids)").execution_options(_sa_skip_with_loader_criteria=True),
+                            sa.text("SELECT id FROM movement_archive WHERE id = ANY(:ids)").execution_options(
+                                _sa_skip_with_loader_criteria=True),
                             {"ids": moved_specific},
                         )
                         exist_ids = [str(r[0]) for r in res_exist.fetchall()]
                         if exist_ids:
                             await session.execute(
-                                sa.text("DELETE FROM movement WHERE id = ANY(:ids)").execution_options(_sa_skip_with_loader_criteria=True),
+                                sa.text("DELETE FROM movement WHERE id = ANY(:ids)").execution_options(
+                                    _sa_skip_with_loader_criteria=True),
                                 {"ids": exist_ids},
                             )
                             if not dry_run:
@@ -263,6 +289,7 @@ async def maintenance_job(dry_run: bool = True, batch_size: int = BATCH_SIZE, lo
                     "moved_reservations": totals["reservation"],
                     "moved_batches": totals["batch"],
                     "moved_movements": totals["movement"],
+                    "moved_serials": totals.get("serial", 0),
                     "purged_audit_logs": purged_count,
                     "errors": errors,
                     "started_at": start_ts.isoformat(),

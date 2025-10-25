@@ -1,7 +1,7 @@
 # scripts/maintenance/install_tasks.ps1
 param(
   [string]$ProjectRoot = "",
-  [int]$BatchSize = 10,
+  [int]$BatchSize = 50,
   [int]$LockKey = 123456789,
   [string]$TaskName = "InventoryMaintenance_Weekly",
   [string]$RotateTaskName = "InventoryMaintenance_RotateLogs_Daily",
