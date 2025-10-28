@@ -1,3 +1,5 @@
+# src/app/schemas/serial.py
+
 from pydantic import BaseModel, constr
 from uuid import UUID
 from datetime import datetime
@@ -19,4 +21,4 @@ class SerialRead(SerialBase):
     deleted_at: datetime | None
 
     class Config:
-        from_attributes = True
+        orm_mode = True

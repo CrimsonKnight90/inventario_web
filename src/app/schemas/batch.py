@@ -1,3 +1,5 @@
+# src/app/schemas/batch.py
+
 from pydantic import BaseModel, constr
 from uuid import UUID
 from datetime import datetime, date
@@ -20,4 +22,4 @@ class BatchRead(BatchBase):
     deleted_at: datetime | None
 
     class Config:
-        from_attributes = True
+        orm_mode = True

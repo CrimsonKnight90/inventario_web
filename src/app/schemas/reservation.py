@@ -1,7 +1,8 @@
+# src/app/schemas/reservation.py
+
 from pydantic import BaseModel, condecimal
 from uuid import UUID
 from datetime import datetime
-
 
 class ReservationBase(BaseModel):
     product_id: UUID
@@ -12,10 +13,8 @@ class ReservationBase(BaseModel):
     quantity: condecimal(gt=0)
     reserved_until: datetime | None = None
 
-
 class ReservationCreate(ReservationBase):
     pass
-
 
 class ReservationRead(ReservationBase):
     id: UUID
@@ -26,4 +25,4 @@ class ReservationRead(ReservationBase):
     deleted_at: datetime | None
 
     class Config:
-        from_attributes = True
+        orm_mode = True

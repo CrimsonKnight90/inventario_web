@@ -1,16 +1,15 @@
+# src/app/schemas/category.py
+
 from pydantic import BaseModel, constr
 from uuid import UUID
 from datetime import datetime
-
 
 class CategoryBase(BaseModel):
     name: constr(min_length=1, max_length=255)
     parent_id: UUID | None = None
 
-
 class CategoryCreate(CategoryBase):
     pass
-
 
 class CategoryRead(CategoryBase):
     id: UUID
@@ -19,4 +18,4 @@ class CategoryRead(CategoryBase):
     deleted_at: datetime | None
 
     class Config:
-        from_attributes = True
+        orm_mode = True

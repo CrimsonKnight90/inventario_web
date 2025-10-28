@@ -1,7 +1,8 @@
+# src/app/schemas/product.py
+
 from pydantic import BaseModel, Field, constr
 from uuid import UUID
 from datetime import datetime
-
 
 class ProductBase(BaseModel):
     name: constr(min_length=1, max_length=255)
@@ -11,10 +12,8 @@ class ProductBase(BaseModel):
     is_serialized: bool = False
     is_perishable: bool = False
 
-
 class ProductCreate(ProductBase):
     pass
-
 
 class ProductRead(ProductBase):
     id: UUID
@@ -23,4 +22,4 @@ class ProductRead(ProductBase):
     deleted_at: datetime | None
 
     class Config:
-        from_attributes = True
+        orm_mode = True

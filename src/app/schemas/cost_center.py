@@ -1,3 +1,5 @@
+# src/app/schemas/cost_center.py
+
 from pydantic import BaseModel, constr
 from uuid import UUID
 from datetime import datetime
@@ -16,4 +18,4 @@ class CostCenterRead(CostCenterBase):
     deleted_at: datetime | None
 
     class Config:
-        from_attributes = True
+        orm_mode = True

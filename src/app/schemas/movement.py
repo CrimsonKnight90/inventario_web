@@ -1,7 +1,8 @@
+# src/app/schemas/movement.py
+
 from pydantic import BaseModel, constr, condecimal
 from uuid import UUID
 from datetime import datetime
-
 
 class MovementBase(BaseModel):
     code: constr(min_length=1, max_length=100)
@@ -15,10 +16,8 @@ class MovementBase(BaseModel):
     executed_by_user_id: UUID | None = None
     quantity: condecimal(gt=0)
 
-
 class MovementCreate(MovementBase):
     pass
-
 
 class MovementRead(MovementBase):
     id: UUID
@@ -28,4 +27,4 @@ class MovementRead(MovementBase):
     deleted_at: datetime | None
 
     class Config:
-        from_attributes = True
+        orm_mode = True

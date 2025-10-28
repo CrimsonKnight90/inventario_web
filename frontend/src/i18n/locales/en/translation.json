@@ -1,0 +1,27 @@
+{
+  "app": {
+    "title": "Enterprise Inventory",
+    "welcome": "Welcome"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "inventory": "Inventory",
+    "reservations": "Reservations",
+    "reports": "Reports",
+    "settings": "Settings",
+    "logout": "Sign out"
+  },
+  "auth": {
+    "login": "Sign in",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Submit",
+    "invalid_credentials": "Invalid credentials"
+  },
+  "dashboard": {
+    "stock_physical": "Physical stock",
+    "stock_reserved": "Reserved",
+    "stock_available": "Available",
+    "last_maintenance_run": "Last maintenance run"
+  }
+}

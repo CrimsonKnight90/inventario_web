@@ -22,9 +22,14 @@ app = FastAPI(
     description="Multi-warehouse, multi-purpose inventory management API",
 )
 
+origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # ajustar en producción
+    allow_origins=origins,  # lista explícita
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -1,3 +1,4 @@
+# src/app/core/settings.py
 from pydantic import BaseSettings, AnyHttpUrl, Field, EmailStr
 from typing import Optional
 

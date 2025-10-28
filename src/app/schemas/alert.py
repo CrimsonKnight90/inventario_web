@@ -1,3 +1,5 @@
+# src/app/schemas/alert.py
+
 from pydantic import BaseModel
 from uuid import UUID
 from datetime import datetime
@@ -12,4 +14,5 @@ class AlertRead(BaseModel):
     occurred_at: datetime
 
     class Config:
-        from_attributes = True
+        orm_mode = True
+

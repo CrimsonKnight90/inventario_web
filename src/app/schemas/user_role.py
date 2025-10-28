@@ -1,3 +1,5 @@
+# src/app/schemas/user_role.py
+
 from pydantic import BaseModel
 from uuid import UUID
 from datetime import datetime
@@ -13,4 +15,4 @@ class UserRoleRead(UserRoleBase):
     assigned_at: datetime
 
     class Config:
-        from_attributes = True
+        orm_mode = True

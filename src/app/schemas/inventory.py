@@ -1,14 +1,14 @@
+# src/app/schemas/inventory.py
+
 from pydantic import BaseModel, condecimal
 from uuid import UUID
 from datetime import datetime
-
 
 class InventoryBase(BaseModel):
     product_id: UUID
     batch_id: UUID
     location_id: UUID
     quantity: condecimal(ge=0)
-
 
 class InventoryRead(InventoryBase):
     id: UUID
@@ -17,4 +17,4 @@ class InventoryRead(InventoryBase):
     deleted_at: datetime | None
 
     class Config:
-        from_attributes = True
+        orm_mode = True

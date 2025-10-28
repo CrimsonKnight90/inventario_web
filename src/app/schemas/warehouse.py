@@ -1,3 +1,5 @@
+# src/app/schemas/warehouse.py
+
 from pydantic import BaseModel, constr
 from uuid import UUID
 from datetime import datetime
@@ -18,4 +20,4 @@ class WarehouseRead(WarehouseBase):
     deleted_at: datetime | None
 
     class Config:
-        from_attributes = True
+        orm_mode = True

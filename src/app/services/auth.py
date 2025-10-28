@@ -3,7 +3,7 @@
 
 from typing import Optional, List
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, or_
 from jose import jwt, JWTError
 
 from src.app.core.security import verify_password, hash_password, settings
@@ -13,9 +13,15 @@ from src.app.models.user_role import UserRole
 
 
 async def authenticate_user(session: AsyncSession, username: str, password: str) -> Optional[User]:
-    """Authenticate a user by username and password."""
+    """
+    Authenticate a user by username or email and password.
+    Accepta como 'username' tanto el username como el email para facilitar login por correo.
+    """
     result = await session.execute(
-        select(User).where(User.username == username, User.active.is_(True))
+        select(User).where(
+            or_(User.username == username, User.email == username),
+            User.active.is_(True),
+        )
     )
     user: Optional[User] = result.scalar_one_or_none()
     if not user or not user.password_hash:

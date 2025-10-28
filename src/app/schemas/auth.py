@@ -1,4 +1,7 @@
+# src/app/schemas/auth.py
+
 from pydantic import BaseModel, EmailStr, Field
+from src.app.schemas.user import UserRead  # mantiene coherencia con UserRead existente
 
 
 class LoginRequest(BaseModel):
@@ -16,6 +19,9 @@ class SignupRequest(BaseModel):
 
 
 class TokenResponse(BaseModel):
-    """JWT token response."""
+    """JWT token response, alineado con el frontend."""
     access_token: str
     token_type: str = "bearer"
+    expires_in: int | None = None
+    refresh_token: str | None = None
+    user: UserRead | None = None

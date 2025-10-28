@@ -1,0 +1,27 @@
+{
+  "app": {
+    "title": "Inventario Empresarial",
+    "welcome": "Bienvenido"
+  },
+  "nav": {
+    "dashboard": "Tablero",
+    "inventory": "Inventario",
+    "reservations": "Reservas",
+    "reports": "Reportes",
+    "settings": "Configuración",
+    "logout": "Cerrar sesión"
+  },
+  "auth": {
+    "login": "Iniciar sesión",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "submit": "Enviar",
+    "invalid_credentials": "Credenciales inválidas"
+  },
+  "dashboard": {
+    "stock_physical": "Stock físico",
+    "stock_reserved": "Reservado",
+    "stock_available": "Disponible",
+    "last_maintenance_run": "Última ejecución de mantenimiento"
+  }
+}
