@@ -118,10 +118,7 @@ export default function AppConfigPage() {
     { id: "layout" as TabType, label: "Layout", icon: DocumentTextIcon },
     { id: "features" as TabType, label: "Características", icon: Cog6ToothIcon },
   ];
-{/* Vista previa en tiempo real */}
-      <div className="mt-6">
-        <ConfigPreview />
-      </div>
+
   return (
     <PageContainer
       title="Configuración de la Aplicación"

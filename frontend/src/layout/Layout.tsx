@@ -3,6 +3,7 @@
 import { PropsWithChildren } from "react";
 import { Topbar } from "./Topbar";
 import { Sidebar } from "./Sidebar";
+import { Outlet } from "react-router-dom";
 
 export const Layout = ({ children }: PropsWithChildren) => {
   return (
@@ -16,7 +17,7 @@ export const Layout = ({ children }: PropsWithChildren) => {
 
         {/* Contenido scrollable */}
         <main className="flex-1 overflow-y-auto bg-gray-50 p-4">
-          {children}
+          <Outlet /> {/* Esto renderiza las rutas hijas */}
         </main>
       </div>
     </div>

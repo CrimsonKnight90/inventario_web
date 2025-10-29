@@ -6,7 +6,8 @@
 // ============================================================
 
 import { useConfigStore } from "@store/config.store";
-import type { AppConfig, ConfigUpdate } from "../types/config.types";
+import { useShallow } from "zustand/react/shallow"; // Importar useShallow
+import type { AppConfig, BrandingConfig } from "../types/config.types";
 
 /**
  * Hook personalizado para acceder a la configuración
@@ -37,10 +38,12 @@ export function useColors() {
 }
 
 /**
- * Hook para acceder solo al branding
+ * Hook para acceder solo al branding (optimizado y tipado con shallow)
  */
-export function useBranding() {
-  return useConfigStore((s) => s.config.branding);
+export function useBranding(): BrandingConfig {
+  return useConfigStore(
+    useShallow((s) => s.config.branding)
+  );
 }
 
 /**

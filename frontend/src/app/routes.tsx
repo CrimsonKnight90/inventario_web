@@ -1,7 +1,7 @@
 // ============================================================
 // Archivo: frontend/src/app/routes.tsx
 // Descripción: Configuración centralizada de rutas.
-//              ACTUALIZADO: Agregada ruta de configuración.
+//              VERSIÓN PLANA: Sin anidamiento
 // Autor: CrimsonKnight90
 // ============================================================
 
@@ -13,13 +13,12 @@ import { ChartBarIcon, Cog6ToothIcon, HomeIcon, PaintBrushIcon } from "@heroicon
 
 export type AppRoute = {
   path: string;
-  element: ReactNode;
+  element?: ReactNode;
   private?: boolean;
   roles?: string[];
   title?: string;
   icon?: ReactNode;
   breadcrumb?: string;
-  children?: AppRoute[];
 };
 
 export const routes: AppRoute[] = [
@@ -36,32 +35,30 @@ export const routes: AppRoute[] = [
     title: "Dashboard",
     icon: <HomeIcon className="h-5 w-5" />,
     breadcrumb: "nav.dashboard",
-    children: [
-      {
-        path: "/dashboard/reports",
-        element: <div>📊 Reportes</div>,
-        private: true,
-        title: "Reportes",
-        icon: <ChartBarIcon className="h-5 w-5" />,
-        breadcrumb: "nav.reports",
-      },
-      {
-        path: "/dashboard/settings",
-        element: <div>⚙️ Configuración</div>,
-        private: true,
-        title: "Configuración",
-        icon: <Cog6ToothIcon className="h-5 w-5" />,
-        breadcrumb: "nav.settings",
-      },
-      {
-        path: "/dashboard/app-config",
-        element: <AppConfigPage />,
-        private: true,
-        roles: ["admin"],
-        title: "Configuración de App",
-        icon: <PaintBrushIcon className="h-5 w-5" />,
-        breadcrumb: "nav.app_config",
-      },
-    ],
+  },
+  {
+    path: "/dashboard/reports",
+    element: <div>📊 Reportes</div>,
+    private: true,
+    title: "Reportes",
+    icon: <ChartBarIcon className="h-5 w-5" />,
+    breadcrumb: "nav.reports",
+  },
+  {
+    path: "/dashboard/settings",
+    element: <div>⚙️ Configuración</div>,
+    private: true,
+    title: "Configuración",
+    icon: <Cog6ToothIcon className="h-5 w-5" />,
+    breadcrumb: "nav.settings",
+  },
+  {
+    path: "/dashboard/app-config",
+    element: <AppConfigPage />,
+    private: true,
+    roles: ["admin"],
+    title: "Configuración de App",
+    icon: <PaintBrushIcon className="h-5 w-5" />,
+    breadcrumb: "nav.app_config",
   },
 ];
