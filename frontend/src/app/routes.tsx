@@ -1,10 +1,15 @@
-// src/app/routes.tsx
+// ============================================================
+// Archivo: frontend/src/app/routes.tsx
+// Descripción: Configuración centralizada de rutas.
+//              ACTUALIZADO: Agregada ruta de configuración.
+// Autor: CrimsonKnight90
+// ============================================================
 
 import { ReactNode } from "react";
 import { DashboardPage } from "@pages/Dashboard.page";
-import BrandingConfigPage from "@pages/BrandingConfig.page";
+import AppConfigPage from "@pages/AppConfig.page";
 import LoginPage from "@pages/Login.page";
-import { ChartBarIcon, Cog6ToothIcon, HomeIcon } from "@heroicons/react/24/outline";
+import { ChartBarIcon, Cog6ToothIcon, HomeIcon, PaintBrushIcon } from "@heroicons/react/24/outline";
 
 export type AppRoute = {
   path: string;
@@ -13,7 +18,7 @@ export type AppRoute = {
   roles?: string[];
   title?: string;
   icon?: ReactNode;
-  breadcrumb?: string;       // Clave de traducción para migas de pan
+  breadcrumb?: string;
   children?: AppRoute[];
 };
 
@@ -22,7 +27,7 @@ export const routes: AppRoute[] = [
     path: "/login",
     element: <LoginPage />,
     title: "Login",
-    breadcrumb: "nav.login",
+    breadcrumb: "auth.login",
   },
   {
     path: "/dashboard",
@@ -48,15 +53,15 @@ export const routes: AppRoute[] = [
         icon: <Cog6ToothIcon className="h-5 w-5" />,
         breadcrumb: "nav.settings",
       },
+      {
+        path: "/dashboard/app-config",
+        element: <AppConfigPage />,
+        private: true,
+        roles: ["admin"],
+        title: "Configuración de App",
+        icon: <PaintBrushIcon className="h-5 w-5" />,
+        breadcrumb: "nav.app_config",
+      },
     ],
-  },
-  {
-    path: "/branding",
-    element: <BrandingConfigPage />,
-    private: true,
-    roles: ["admin"],
-    title: "Branding",
-    icon: <Cog6ToothIcon className="h-5 w-5" />,
-    breadcrumb: "nav.branding",
   },
 ];
