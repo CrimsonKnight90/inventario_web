@@ -5,12 +5,14 @@ import { Layout } from "@layout/Layout";
 import { PrivateRoute } from "@components/PrivateRoute";
 import { routes, AppRoute } from "@app/routes";
 import { ReactElement, useEffect } from "react";
+import LoginPage from "@pages/Login.page"; // Importar LoginPage
 
 /**
  * Renderiza una ruta y sus posibles subrutas de forma recursiva.
+ * VERSIÓN PLANA: No hay anidamiento, por lo que no se usan children.
  */
 function renderRoute(route: AppRoute): ReactElement {
-  const { path, element, private: isPrivate, roles, children } = route;
+  const { path, element, private: isPrivate, roles } = route;
 
   const wrappedElement = isPrivate ? (
     <PrivateRoute roles={roles}>
@@ -21,9 +23,7 @@ function renderRoute(route: AppRoute): ReactElement {
   );
 
   return (
-    <Route key={path} path={path} element={wrappedElement}>
-      {children && children.map(renderRoute)}
-    </Route>
+    <Route key={path} path={path} element={wrappedElement} />
   );
 }
 
@@ -31,7 +31,6 @@ function renderRoute(route: AppRoute): ReactElement {
  * App principal: define las rutas a partir de la configuración centralizada.
  */
 export default function App(): ReactElement {
-  // ✅ Usar selectores separados para evitar renders infinitos
   const token = useAuthStore((state) => state.token);
   const restoreFromStorage = useAuthStore((state) => state.restoreFromStorage);
 

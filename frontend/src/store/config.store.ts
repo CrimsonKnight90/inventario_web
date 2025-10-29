@@ -86,40 +86,33 @@ const defaultConfig: AppConfig = {
 };
 
 /**
- * Aplica las variables CSS basadas en la configuración
+ * Helpers
  */
 function applyCssVariables(config: AppConfig): void {
   const root = document.documentElement;
 
-  // Colores
   Object.entries(config.colors).forEach(([key, value]) => {
     root.style.setProperty(`--color-${key}`, value);
   });
 
-  // Fuentes
   root.style.setProperty("--font-sans", config.fonts.sans);
   root.style.setProperty("--font-mono", config.fonts.mono);
 
-  // Tamaños de fuente
   Object.entries(config.fonts.sizes).forEach(([key, value]) => {
     root.style.setProperty(`--text-${key}`, value);
   });
 
-  // Layout
   root.style.setProperty("--sidebar-width", config.layout.sidebarWidth);
   root.style.setProperty("--topbar-height", config.layout.topbarHeight);
 
-  // Border radius
   Object.entries(config.layout.borderRadius).forEach(([key, value]) => {
     root.style.setProperty(`--radius-${key}`, value);
   });
 
-  // Spacing
   Object.entries(config.layout.spacing).forEach(([key, value]) => {
     root.style.setProperty(`--spacing-${key}`, value);
   });
 
-  // Tema
   if (config.theme === "dark") {
     root.classList.add("dark");
   } else {
@@ -127,9 +120,6 @@ function applyCssVariables(config: AppConfig): void {
   }
 }
 
-/**
- * Actualiza el favicon dinámicamente
- */
 function updateFavicon(url: string): void {
   const link = document.querySelector<HTMLLinkElement>("link[rel='icon']") ||
     document.createElement("link");
@@ -138,14 +128,18 @@ function updateFavicon(url: string): void {
   document.head.appendChild(link);
 }
 
-/**
- * Actualiza el título de la página
- */
 function updateTitle(appName: string): void {
   document.title = appName;
 }
 
-type ConfigState = {
+function hasConfigChanged(oldConfig: AppConfig, newConfig: AppConfig): boolean {
+  return JSON.stringify(oldConfig) !== JSON.stringify(newConfig);
+}
+
+/**
+ * Estado y API del store
+ */
+export type ConfigState = {
   config: AppConfig;
   isLoading: boolean;
   error: string | null;
@@ -155,8 +149,11 @@ type ConfigState = {
   importConfig: (jsonString: string) => boolean;
 };
 
+/**
+ * Store tipado y persistente (persist<ConfigState> para que TS infiera bien)
+ */
 export const useConfigStore = create<ConfigState>()(
-  persist(
+  persist<ConfigState>(
     (set, get) => ({
       config: defaultConfig,
       isLoading: false,
@@ -167,17 +164,24 @@ export const useConfigStore = create<ConfigState>()(
         const newConfig: AppConfig = {
           ...current,
           ...update,
-          colors: { ...current.colors, ...update.colors },
-          fonts: { ...current.fonts, ...update.fonts },
-          layout: { ...current.layout, ...update.layout },
-          branding: { ...current.branding, ...update.branding },
-          features: { ...current.features, ...update.features },
+          colors: { ...current.colors, ...(update.colors ?? {}) },
+          fonts: { ...current.fonts, ...(update.fonts ?? {}) },
+          layout: { ...current.layout, ...(update.layout ?? {}) },
+          branding: { ...current.branding, ...(update.branding ?? {}) },
+          features: { ...current.features, ...(update.features ?? {}) },
         };
+
+        if (!hasConfigChanged(current, newConfig)) return;
 
         set({ config: newConfig, error: null });
         applyCssVariables(newConfig);
-        updateFavicon(newConfig.branding.faviconUrl);
-        updateTitle(newConfig.branding.appName);
+
+        if (newConfig.branding.faviconUrl !== current.branding.faviconUrl) {
+          updateFavicon(newConfig.branding.faviconUrl);
+        }
+        if (newConfig.branding.appName !== current.branding.appName) {
+          updateTitle(newConfig.branding.appName);
+        }
       },
 
       resetConfig: () => {
@@ -187,27 +191,25 @@ export const useConfigStore = create<ConfigState>()(
         updateTitle(defaultConfig.branding.appName);
       },
 
-      exportConfig: () => {
-        const { config } = get();
-        return JSON.stringify(config, null, 2);
-      },
+      exportConfig: () => JSON.stringify(get().config, null, 2),
 
       importConfig: (jsonString: string) => {
         try {
           const imported = JSON.parse(jsonString) as AppConfig;
 
-          // Validación básica
           if (!imported.branding || !imported.colors) {
             set({ error: "Formato de configuración inválido" });
             return false;
           }
+
+          if (!hasConfigChanged(get().config, imported)) return true;
 
           set({ config: imported, error: null });
           applyCssVariables(imported);
           updateFavicon(imported.branding.faviconUrl);
           updateTitle(imported.branding.appName);
           return true;
-        } catch (err) {
+        } catch {
           set({ error: "Error al importar configuración: JSON inválido" });
           return false;
         }
@@ -215,7 +217,8 @@ export const useConfigStore = create<ConfigState>()(
     }),
     {
       name: STORAGE_KEY,
-      partialize: (state) => ({ config: state.config }),
+      // Partialize debe devolver un subset válido; usar Pick para ser estricto
+      partialize: (state): Pick<ConfigState, "config"> => ({ config: state.config }),
     }
   )
 );

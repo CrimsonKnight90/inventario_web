@@ -16,7 +16,7 @@ export const PageContainer = ({ title, actions, children }: PropsWithChildren<Pr
           {actions && <div>{actions}</div>}
         </div>
       )}
-      <div className="bg-white shadow rounded p-4">{children}</div>
+      <div>{children}</div>
     </div>
   );
 };
