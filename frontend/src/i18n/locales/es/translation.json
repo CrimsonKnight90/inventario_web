@@ -9,6 +9,7 @@
     "reservations": "Reservas",
     "reports": "Reportes",
     "settings": "Configuración",
+    "app_config": "Config. de App",
     "logout": "Cerrar sesión"
   },
   "auth": {
