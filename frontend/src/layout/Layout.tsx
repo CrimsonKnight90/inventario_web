@@ -1,19 +1,19 @@
 // ============================================================
 // Archivo: frontend/src/layout/Layout.tsx
-// Descripción: Layout principal CORREGIDO para usar Outlet
-//              correctamente sin conflictos con children.
+// Descripción: Layout principal OPTIMIZADO para evitar renderizados
+//              innecesarios y mejorar el rendimiento.
 // Autor: CrimsonKnight90
 // ============================================================
 
 import { Topbar } from "./Topbar";
 import { Sidebar } from "./Sidebar";
 import { Outlet } from "react-router-dom";
+import { memo } from "react";
 
 /**
- * ✅ ELIMINADO PropsWithChildren - no se necesita
- * El Layout ya no recibe children, solo usa <Outlet />
+ * Layout optimizado con memo para evitar renderizados innecesarios
  */
-export const Layout = () => {
+export const Layout = memo(() => {
   return (
     <div className="flex flex-col h-screen">
       {/* Topbar fijo */}
@@ -23,11 +23,13 @@ export const Layout = () => {
         {/* Sidebar fijo debajo del Topbar */}
         <Sidebar />
 
-        {/* Contenido scrollable - ✅ SOLO usa Outlet */}
+        {/* Contenido scrollable - Solo usa Outlet */}
         <main className="flex-1 overflow-y-auto bg-gray-50 p-4">
           <Outlet />
         </main>
       </div>
     </div>
   );
-};
+});
+
+Layout.displayName = "Layout";

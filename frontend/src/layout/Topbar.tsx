@@ -1,28 +1,51 @@
 // ============================================================
 // Archivo: frontend/src/layout/Topbar.tsx
-// Descripción: Barra superior SIMPLIFICADA.
-//              Solo muestra logo y nombre de empresa (configurables).
-//              Sin breadcrumb para mantener UI limpia.
+// Descripción: Barra superior optimizada y memoizada para evitar
+//              re-renders innecesarios.
 // Autor: CrimsonKnight90
 // ============================================================
 
-import { useAuthStore } from "@store/auth.store";
-import { useBranding } from "@hooks/useConfig";
+import { memo, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { useAuthStore } from "@store/auth.store";
+import { useConfigStore } from "@store/config.store";
 
-export const Topbar = () => {
-  const userEmail = useAuthStore((s) => s.user?.email);
-  const logout = useAuthStore((s) => s.logout);
-  const branding = useBranding();
+/**
+ * Seleccionadores mínimos: solo valores primitivos que lee Topbar.
+ * Evitar seleccionar objetos enteros para prevenir re-renders.
+ */
+const selectUserEmail = (s: any) => s.user?.email;
+const selectLogout = (s: any) => s.logout;
+const selectLogoUrl = (s: any) => s.config.branding.logoUrl;
+const selectAppName = (s: any) => s.config.branding.appName;
+const selectCompanyName = (s: any) => s.config.branding.companyName;
+
+function TopbarInner() {
   const { t } = useTranslation();
+
+  // selectores mínimos desde la store
+  const userEmail = useAuthStore(selectUserEmail);
+  const logout = useAuthStore(selectLogout);
+
+  const logoUrl = useConfigStore(selectLogoUrl);
+  const appName = useConfigStore(selectAppName);
+  const companyName = useConfigStore(selectCompanyName);
+
+  const brandingInfo = useMemo(
+    () => ({
+      logoUrl: logoUrl || "/assets/logo.svg",
+      companyName: companyName || "Empresa",
+      appName: appName || "Inventario Empresarial",
+    }),
+    [logoUrl, companyName, appName]
+  );
 
   return (
     <header className="flex items-center justify-between bg-[var(--color-surface)] border-b border-[var(--color-border)] px-6 py-3 shadow-sm">
-      {/* ✅ Sección izquierda: Logo + Nombre de Empresa */}
       <div className="flex items-center space-x-3">
         <img
-          src={branding.logoUrl}
-          alt={branding.appName}
+          src={brandingInfo.logoUrl}
+          alt={brandingInfo.appName}
           className="h-10 w-auto object-contain"
           onError={(e) => {
             e.currentTarget.src = "/assets/logo.svg";
@@ -30,15 +53,14 @@ export const Topbar = () => {
         />
         <div className="flex flex-col">
           <span className="text-lg font-bold text-[var(--color-text)]">
-            {branding.companyName}
+            {brandingInfo.companyName}
           </span>
           <span className="text-xs text-[var(--color-text-secondary)]">
-            {branding.appName}
+            {brandingInfo.appName}
           </span>
         </div>
       </div>
 
-      {/* ✅ Sección derecha: Usuario + Logout */}
       <div className="flex items-center space-x-4">
         <div className="text-right">
           <p className="text-sm font-medium text-[var(--color-text)]">
@@ -57,4 +79,8 @@ export const Topbar = () => {
       </div>
     </header>
   );
-};
+}
+
+// Memoizar el componente para estabilidad de render
+export const Topbar = memo(TopbarInner);
+Topbar.displayName = "Topbar";
