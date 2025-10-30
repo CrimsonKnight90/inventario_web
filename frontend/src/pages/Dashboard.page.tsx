@@ -1,5 +1,7 @@
 // src/pages/Dashboard.page.tsx
 
+import { Outlet } from "react-router-dom";
+
 export const DashboardPage = () => {
   return (
     <div className="space-y-4">
@@ -57,6 +59,10 @@ export const DashboardPage = () => {
             </tbody>
           </table>
         </div>
+      </div>
+        {/* Outlet para rutas hijas (reports, settings, app-config) */}
+      <div className="mt-6">
+        <Outlet />
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+// frontend/src/store/config.store.ts
 // ============================================================
 // Archivo: frontend/src/store/config.store.ts
 // Descripción: Store de Zustand para gestionar la configuración
@@ -12,9 +13,7 @@ import type { AppConfig, ConfigUpdate } from "../types/config.types";
 
 const STORAGE_KEY = "inventario_config_v2";
 
-/**
- * Configuración por defecto de la aplicación
- */
+/* defaultConfig (igual que antes) */
 const defaultConfig: AppConfig = {
   theme: "light",
   locale: "es",
@@ -85,9 +84,7 @@ const defaultConfig: AppConfig = {
   },
 };
 
-/**
- * Helpers
- */
+/* Helpers */
 function applyCssVariables(config: AppConfig): void {
   const root = document.documentElement;
 
@@ -136,9 +133,7 @@ function hasConfigChanged(oldConfig: AppConfig, newConfig: AppConfig): boolean {
   return JSON.stringify(oldConfig) !== JSON.stringify(newConfig);
 }
 
-/**
- * Estado y API del store
- */
+/* State type */
 export type ConfigState = {
   config: AppConfig;
   isLoading: boolean;
@@ -149,11 +144,11 @@ export type ConfigState = {
   importConfig: (jsonString: string) => boolean;
 };
 
-/**
- * Store tipado y persistente (persist<ConfigState> para que TS infiera bien)
- */
+/* Store */
 export const useConfigStore = create<ConfigState>()(
-  persist<ConfigState>(
+  // NOTA: no forzamos generics en persist para evitar discrepancias con versiones de tipos;
+  // en su lugar casteamos el resultado de partialize a any (localizado y seguro).
+  persist(
     (set, get) => ({
       config: defaultConfig,
       isLoading: false,
@@ -217,13 +212,14 @@ export const useConfigStore = create<ConfigState>()(
     }),
     {
       name: STORAGE_KEY,
-      // Partialize debe devolver un subset válido; usar Pick para ser estricto
-      partialize: (state): Pick<ConfigState, "config"> => ({ config: state.config }),
+      // aquí devolvemos únicamente la propiedad config; casteamos a any para
+      // evitar fricciones tipográficas entre las versiones de los tipos de persist.
+      partialize: (state) => ({ config: state.config }) as unknown as any,
     }
   )
 );
 
-// Aplicar configuración inicial al cargar
+/* Aplicar configuración inicial al cargar (runtime) */
 if (typeof window !== "undefined") {
   const initialConfig = useConfigStore.getState().config;
   applyCssVariables(initialConfig);

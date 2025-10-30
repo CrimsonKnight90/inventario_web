@@ -1,75 +1,91 @@
 frontend/
-    eslint.config.js
+    eslint.config.js.txt
     estructura_src.txt
     index.html
-    package.json
-    postcss.config.js
+    package-lock.json.txt
+    package.json.txt
+    postcss.config.js.txt
     README.md
-    tailwind.config.js
-    tsconfig.app.json
-    tsconfig.json
-    tsconfig.node.json
-    vite.config.ts
+    tailwind.config.js.txt
+    tsconfig.app.json.txt
+    tsconfig.json.txt
+    tsconfig.node.json.txt
+    vite.config.ts.txt
+    .vite/
+        deps/
+            chunk-5A26UHI5.js
+            chunk-5A26UHI5.js.map
+            package.json
+            react-dom_client.js
+            react-dom_client.js.map
+            react-router-dom.js
+            react-router-dom.js.map
+            _metadata.json
     public/
         vite.svg
     src/
         app/
-            App.css
-            App.tsx
-            index.css
-            main.tsx
+            App.css.txt
+            App.tsx.txt
+            index.css.txt
+            main.tsx.txt
+            routes.tsx.txt
         assets/
             react.svg
         branding/
-            config.ts
+            config.ts.txt
             logo.svg
-            theme.ts
+            theme.ts.txt
             __init__.py
         components/
-            PrivateRoute.tsx
+            ConfigPreview.tsx.txt
+            PrivateRoute.tsx.txt
             __init__.py
         hooks/
+            useConfig.ts.txt
         i18n/
-            i18n.ts
+            i18n.ts.txt
             __init__.py
             locales/
                 __init__.py
                 en/
-                    translation.json
+                    translation.json.txt
                     __init__.py
                 es/
-                    translation.json
+                    translation.json.txt
                     __init__.py
         layout/
-            Layout.tsx
-            PageContainer.tsx
-            Sidebar.tsx
-            Topbar.tsx
+            Layout.tsx.txt
+            PageContainer.tsx.txt
+            Sidebar.tsx.txt
+            Topbar.tsx.txt
         pages/
-            BrandingConfig.page.tsx
-            Dashboard.page.tsx
-            Login.page.tsx
+            AppConfig.page.tsx.txt
+            BrandingConfig.page.tsx.txt
+            Dashboard.page.tsx.txt
+            Login.page.tsx.txt
             __init__.py
         services/
-            auth.service.ts
+            auth.service.ts.txt
             __init__.py
         store/
-            auth.store.ts
+            auth.store.ts.txt
+            config.store.ts.txt
             __init__.py
         tests/
-            auth.service.test.ts
             __init__.py
         theme/
-            theme.ts
-            ThemeContext.tsx
+            theme.ts.txt
+            ThemeContext.tsx.txt
         types/
-            auth.types.ts
+            auth.types.ts.txt
+            config.types.ts.txt
             __init__.py
         ui/
-            Alert.tsx
-            Button.tsx
-            Card.tsx
-            Select.tsx
-            TextInput.tsx
+            Alert.tsx.txt
+            Button.tsx.txt
+            Card.tsx.txt
+            Select.tsx.txt
+            TextInput.tsx.txt
             __init__.py
         utils/
