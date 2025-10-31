@@ -1,115 +1,313 @@
-// ============================================================
-// Archivo: frontend/src/layout/Sidebar.tsx
-// Descripción: Sidebar que solo muestra el grupo padre si la ruta
-//              actual pertenece a su sección o si el usuario lo abrió.
+//============================================================
+// Archivo: src/layout/Sidebar.tsx
+// Descripción: Componente de barra lateral de navegación. Incluye
+//              logo, menú de navegación, estado colapsado y
+//              funcionalidad responsive.
 // Autor: CrimsonKnight90
-// ============================================================
+//============================================================
 
-import { NavLink, useLocation } from "react-router-dom";
-import { routes, AppRoute } from "@app/routes";
-import { useState, useMemo, useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import React, { useMemo } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
+import {
+  LayoutDashboard,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+  Home,
+  Users,
+  Package,
+  DollarSign,
+  BarChart3,
+  FileText,
+} from 'lucide-react';
+import { useSidebar, useConfig } from '../hooks/useConfig';
 
-const makeAbsolute = (parentPath: string, childPath: string) => {
-  if (!childPath) return parentPath;
-  if (childPath.startsWith("/")) return childPath;
-  const parent = parentPath.endsWith("/") ? parentPath.replace(/\/$/, "") : parentPath;
-  const child = childPath.startsWith("/") ? childPath.replace(/^\//, "") : childPath;
-  return `${parent}/${child}`;
-};
+/**
+ * Tipo para un item del menú
+ */
+interface MenuItem {
+  id: string;
+  label: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  path: string;
+  badge?: string | number;
+  disabled?: boolean;
+}
 
-export const Sidebar = () => {
-  const [open, setOpen] = useState<string | null>(null);
-  const { t } = useTranslation();
+/**
+ * Tipo para una sección del menú
+ */
+interface MenuSection {
+  id: string;
+  title?: string;
+  items: MenuItem[];
+}
+
+/**
+ * Componente Sidebar
+ *
+ * Características:
+ * - Navegación principal de la aplicación
+ * - Estado colapsado/expandido
+ * - Indicador visual de ruta activa
+ * - Badges para notificaciones
+ * - Responsive (drawer en móvil)
+ * - Tooltips en estado colapsado
+ */
+const Sidebar: React.FC = () => {
+  const { isSidebarCollapsed, toggleSidebar } = useSidebar();
+  const { config } = useConfig();
   const location = useLocation();
-  const currentPath = useMemo(() => location.pathname, [location.pathname]);
 
-  // Abrir automáticamente el grupo padre si la ruta actual está dentro de sus hijos
-  useEffect(() => {
-    for (const r of routes) {
-      if (!r.private) continue;
-      const routeTo = r.path.startsWith("/") ? r.path : `/${r.path.replace(/^\//, "")}`;
-      if (currentPath === routeTo || currentPath.startsWith(`${routeTo}/`)) {
-        setOpen(r.path);
-        return;
-      }
-    }
-    // no forzar cierre aquí (permite que usuario mantenga su elección)
-  }, [currentPath]);
+  /**
+   * Estructura del menú
+   * En una aplicación real, esto podría venir de un servicio
+   * o basarse en los permisos del usuario
+   */
+  const menuSections = useMemo((): MenuSection[] => [
+    {
+      id: 'main',
+      items: [
+        {
+          id: 'dashboard',
+          label: 'Dashboard',
+          icon: LayoutDashboard,
+          path: '/dashboard',
+        },
+      ],
+    },
+    {
+      id: 'modules',
+      title: 'Módulos',
+      items: [
+        {
+          id: 'inventory',
+          label: 'Inventario',
+          icon: Package,
+          path: '/inventory',
+          disabled: true,
+        },
+        {
+          id: 'sales',
+          label: 'Ventas',
+          icon: DollarSign,
+          path: '/sales',
+          disabled: true,
+        },
+        {
+          id: 'hr',
+          label: 'RR.HH.',
+          icon: Users,
+          path: '/hr',
+          disabled: true,
+        },
+        {
+          id: 'reports',
+          label: 'Reportes',
+          icon: BarChart3,
+          path: '/reports',
+          disabled: true,
+        },
+        {
+          id: 'documents',
+          label: 'Documentos',
+          icon: FileText,
+          path: '/documents',
+          disabled: true,
+        },
+      ],
+    },
+    {
+      id: 'settings',
+      title: 'Sistema',
+      items: [
+        {
+          id: 'config',
+          label: 'Configuración',
+          icon: Settings,
+          path: '/config',
+        },
+      ],
+    },
+  ], []);
 
-  const renderRoute = (route: AppRoute) => {
-    const routeTo = route.path.startsWith("/") ? route.path : `/${route.path.replace(/^\//, "")}`;
-    const isSectionActive = currentPath === routeTo || currentPath.startsWith(`${routeTo}/`);
+  /**
+   * Verificar si una ruta está activa
+   */
+  const isActive = (path: string): boolean => {
+    return location.pathname === path;
+  };
 
-    // Mostrar padre solo si pertenece a la sección activa o el usuario lo abrió
-    const shouldShowParent = isSectionActive || open === route.path;
+  /**
+   * Renderizar un item del menú
+   */
+  const renderMenuItem = (item: MenuItem) => {
+    const Icon = item.icon;
+    const active = isActive(item.path);
 
-    if (!shouldShowParent) return null;
+    const content = (
+      <>
+        <div className="flex-shrink-0">
+          <Icon
+            size={20}
+            className={`
+              ${active ? 'text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'}
+              ${!item.disabled && 'group-hover:text-blue-600 dark:group-hover:text-blue-400'}
+            `}
+          />
+        </div>
 
-    if (route.children && route.children.length > 0) {
-      const isOpen = open === route.path;
-
-      return (
-        <div key={routeTo}>
-          <button
-            onClick={() => setOpen(isOpen ? null : route.path)}
-            className={`flex items-center justify-between w-full px-3 py-2 rounded text-sm font-medium ${
-              isSectionActive ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
-            }`}
-          >
-            <span className="flex items-center gap-2">
-              {route.icon}
-              {t(route.breadcrumb!)}
+        {!isSidebarCollapsed && (
+          <>
+            <span
+              className={`
+                flex-1 text-sm font-medium
+                ${active ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'}
+                ${!item.disabled && 'group-hover:text-blue-600 dark:group-hover:text-blue-400'}
+              `}
+            >
+              {item.label}
             </span>
-            <span>{isOpen ? "▾" : "▸"}</span>
-          </button>
 
-          {isOpen && (
-            <div className="ml-4 mt-1 space-y-1">
-              {route.children.map((child) => {
-                const childTo = makeAbsolute(routeTo, child.path);
-                return (
-                  <NavLink
-                    key={childTo}
-                    to={childTo}
-                    className={({ isActive }) =>
-                      `flex items-center gap-2 px-3 py-2 rounded text-sm ${
-                        isActive ? "bg-blue-100 text-blue-700" : "text-gray-600 hover:bg-gray-50"
-                      }`
-                    }
-                  >
-                    {child.icon}
-                    {t(child.breadcrumb!)}
-                  </NavLink>
-                );
-              })}
-            </div>
-          )}
+            {item.badge && (
+              <span className="flex-shrink-0 px-2 py-0.5 text-xs font-semibold text-white bg-red-500 rounded-full">
+                {item.badge}
+              </span>
+            )}
+          </>
+        )}
+
+        {item.disabled && !isSidebarCollapsed && (
+          <span className="text-xs text-gray-400 dark:text-gray-600">
+            Próximamente
+          </span>
+        )}
+      </>
+    );
+
+    if (item.disabled) {
+      return (
+        <div
+          key={item.id}
+          className="flex items-center gap-3 px-4 py-3 opacity-50 cursor-not-allowed"
+          title={isSidebarCollapsed ? item.label : undefined}
+        >
+          {content}
         </div>
       );
     }
 
     return (
       <NavLink
-        key={routeTo}
-        to={routeTo}
-        className={({ isActive }) =>
-          `flex items-center gap-2 px-3 py-2 rounded text-sm font-medium ${
-            isActive ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
-          }`
-        }
+        key={item.id}
+        to={item.path}
+        className={`
+          group flex items-center gap-3 px-4 py-3 transition-colors duration-200
+          ${active
+            ? 'bg-blue-50 dark:bg-blue-900/20 border-r-4 border-blue-600'
+            : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+          }
+        `}
+        title={isSidebarCollapsed ? item.label : undefined}
       >
-        {route.icon}
-        {t(route.breadcrumb!)}
+        {content}
       </NavLink>
     );
   };
 
   return (
-    <aside className="w-60 bg-white border-r border-gray-200 flex-shrink-0 overflow-y-auto">
-      <nav className="flex flex-col p-4 space-y-2">
-        {routes.filter((r) => r.private && r.breadcrumb).map(renderRoute)}
-      </nav>
-    </aside>
+    <>
+      {/* Sidebar */}
+      <aside
+        className={`
+          fixed top-0 left-0 z-40 h-screen transition-all duration-300 ease-in-out
+          bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700
+          ${isSidebarCollapsed ? 'w-20' : 'w-64'}
+          ${isSidebarCollapsed ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}
+        `}
+      >
+        {/* Header del Sidebar */}
+        <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700">
+          {/* Logo y nombre de la app */}
+          <div className="flex items-center gap-3 overflow-hidden">
+            <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg flex items-center justify-center">
+              <Home size={18} className="text-white" />
+            </div>
+
+            {!isSidebarCollapsed && (
+              <div className="flex-1 min-w-0">
+                <h1 className="text-sm font-bold text-gray-900 dark:text-white truncate">
+                  {config.appName}
+                </h1>
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  v{config.version}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Botón de colapsar (solo en desktop) */}
+          <button
+            onClick={toggleSidebar}
+            className="hidden lg:flex p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            aria-label={isSidebarCollapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}
+          >
+            {isSidebarCollapsed ? (
+              <ChevronRight size={18} className="text-gray-600 dark:text-gray-400" />
+            ) : (
+              <ChevronLeft size={18} className="text-gray-600 dark:text-gray-400" />
+            )}
+          </button>
+        </div>
+
+        {/* Navegación */}
+        <nav className="flex-1 overflow-y-auto py-4">
+          {menuSections.map((section) => (
+            <div key={section.id} className="mb-6">
+              {/* Título de la sección */}
+              {section.title && !isSidebarCollapsed && (
+                <h2 className="px-4 mb-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  {section.title}
+                </h2>
+              )}
+
+              {/* Separador visual en modo colapsado */}
+              {section.title && isSidebarCollapsed && (
+                <div className="px-4 mb-2">
+                  <div className="h-px bg-gray-200 dark:bg-gray-700"></div>
+                </div>
+              )}
+
+              {/* Items del menú */}
+              <div className="space-y-1">
+                {section.items.map(renderMenuItem)}
+              </div>
+            </div>
+          ))}
+        </nav>
+
+        {/* Footer del Sidebar */}
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+          {!isSidebarCollapsed ? (
+            <div className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="font-medium">{config.companyName}</p>
+              <p className="mt-1">{config.environment === 'production' ? '🟢 Producción' : '🟡 Desarrollo'}</p>
+            </div>
+          ) : (
+            <div className="flex justify-center">
+              <div
+                className={`
+                  w-3 h-3 rounded-full
+                  ${config.environment === 'production' ? 'bg-green-500' : 'bg-yellow-500'}
+                `}
+                title={config.environment === 'production' ? 'Producción' : 'Desarrollo'}
+              ></div>
+            </div>
+          )}
+        </div>
+      </aside>
+    </>
   );
 };
+
+export default Sidebar;
